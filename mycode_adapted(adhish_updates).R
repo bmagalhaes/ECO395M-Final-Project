@@ -73,6 +73,7 @@ stargazer(fe_lm1, fe_lm2, type = 'text',
                            c("Year Fixed effects", "Yes", "Yes"),
                            c("Controls", "Yes", "Yes")),
           notes = "Standard errors clustered by State")
+
 ###
 y = workdata$loghourlywage  # response variable
 d = workdata$logannualhw  # "treatment" variable
@@ -88,9 +89,11 @@ summary(model2)$coef
 
 t = workdata$YEAR
 s = factor(workdata$STATEFIP)
-interact = glm(y ~ d + s*t, data=workdata) #let's try a model with interactions
+
+#Interactions based model
+interact = glm(y ~ (d + s + post + SEX + AGE + agesq + RACE + MARST + NCHILD + NCHLT5)*t, data=workdata) 
 summary(interact)
-summary(interact)$coef['d',]  #Coef on the treatment var - This is giving us some insights (due to significance)
+summary(interact)$coef['d',]  #Coef on the treatment var 
 dim(model.matrix(y ~ d + s*t, data=workdata)) #483605 obs and 55 coefs
 
 s = factor(s, levels=c(NA,levels(s)), exclude=NULL)
