@@ -150,4 +150,9 @@ for(b in 1:20){
 
 summary(gamb) # All zeros - which signifies no causal effect
 
+##
+res <- cor(workdata)
+corrplot(res, type = 'lower', method = "color", order = "hclust", hclust.method = "ward.D", tl.cex = 0.5, tl.col="black")
+
+
 
