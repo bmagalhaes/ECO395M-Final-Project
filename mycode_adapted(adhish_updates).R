@@ -127,4 +127,27 @@ causal2 = gamlr(cbind(d, dhat, x),y,free=2,lmr=1e-4)
 coef(causal2)
 summary(causal2) #gaussian gamlr with 333 inputs and 100 segments: Don't know how to comprehend
 
+## BOOTSTRAP 
+n = nrow(x)
+
+## Bootstrapping our lasso causal estimator is easy
+gamb = c() # empty gamma
+for(b in 1:20){
+  ## create a matrix of resampled indices
+  ib = sample(1:n, n, replace=TRUE)
+  ## create the resampled data
+  xb = x[ib,]
+  db = d[ib]
+  yb = y[ib]
+  ## run the treatment regression
+  treatb = gamlr(xb,db,lambda.min.ratio=1e-3)
+  dhatb = predict(treatb, xb, type="response")
+  
+  fitb = gamlr(cbind(db,dhatb,xb),yb,free=2)
+  gamb = c(gamb,coef(fitb)["db",])
+  print(b)
+}
+
+summary(gamb) # All zeros - which signifies no causal effect
+
 
