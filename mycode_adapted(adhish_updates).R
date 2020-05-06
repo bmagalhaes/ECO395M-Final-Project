@@ -91,16 +91,31 @@ t = workdata$YEAR
 s = factor(workdata$STATEFIP)
 
 #Interactions based model
-interact = glm(y ~ (d + s + post + SEX + AGE + agesq + RACE + MARST + NCHILD + NCHLT5)*t, data=workdata) 
+interact = glm(y ~ d + ( s + post + SEX + AGE + agesq + RACE + MARST + NCHILD + NCHLT5)*t, data=workdata) 
 summary(interact)
-summary(interact)$coef['d',]  #Coef on the treatment var 
+summary(interact)$coef['d',]  #Coef on the treatment var (insignificant) - possibly due to a lot of variables
 dim(model.matrix(y ~ d + s*t, data=workdata)) #483605 obs and 55 coefs
 
+#Refactoring for naive lasso
 s = factor(s, levels=c(NA,levels(s)), exclude=NULL)
 x = sparse.model.matrix(~ (s + (y + post + SEX + AGE + agesq + RACE + MARST + NCHILD)^2*(t)), data=workdata)[,-1]
-dim(x)
+dim(x) #483605 obs and 331 coefs
 
 ## naive lasso regression : I don't this this is relevant for our dataset
-#naive = gamlr(cbind(d,x),y)
-#coef(naive)["d",] # effect is AICc selected <0
-#summary(naive)$coef
+naive = gamlr(cbind(d,x),y)
+coef(naive)["d",] # coef is 0 
+summary(naive)$coef # gaussian gamlr with 332 inputs and 100 segments
+
+#to avoid regulariztion we are going to seperate our treatment variable 'd' into two
+#one part will be predictiable using controle, other wouldn't. Almost like 2SLS 
+treat = gamlr(x,d,lambda.min.ratio=1e-4) #use the lasso to regress sparse matrix on x. regressing treatment on controls
+plot(treat)
+coef(treat)
+
+#dhat: weighted loghourlywage as per state
+dhat = predict(treat, x, type="response") %>% drop
+plot(dhat) #Obviously not for final report but this sort of tells us how there's not much correlation?
+cor(drop(dhat),d)^2 #Relatively low R-sq
+
+
+
