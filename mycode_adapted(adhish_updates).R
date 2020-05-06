@@ -88,10 +88,10 @@ summary(model2)$coef
 
 t = workdata$YEAR
 s = factor(workdata$STATEFIP)
-interact = glm(y ~ d + s*t, data=workdata)
+interact = glm(y ~ d + s*t, data=workdata) #let's try a model with interactions
 summary(interact)
-summary(interact)$coef #This is giving us some insights
-dim(model.matrix(y ~ d + s*t, data=workdata)) #we can probably group all the controls and do something like this?
+summary(interact)$coef['d',]  #Coef on the treatment var - This is giving us some insights (due to significance)
+dim(model.matrix(y ~ d + s*t, data=workdata)) #483605 obs and 55 coefs
 
 s = factor(s, levels=c(NA,levels(s)), exclude=NULL)
 x = sparse.model.matrix(~ (s + (y + post + SEX + AGE + agesq + RACE + MARST + NCHILD)^2*(t)), data=workdata)[,-1]
