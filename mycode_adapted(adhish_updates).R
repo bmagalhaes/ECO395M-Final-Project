@@ -150,9 +150,28 @@ for(b in 1:20){
 
 summary(gamb) # All zeros - which signifies no causal effect
 
-##
-res <- cor(workdata)
-corrplot(res, type = 'lower', method = "color", order = "hclust", hclust.method = "ward.D", tl.cex = 0.5, tl.col="black")
+###
+###Trying logit
+###
+n = nrow(workdata)
+n_train = round(0.8*n)
+n_test = n - n_train
 
-
-
+err_vals_glm = do(100)*{
+  train_cases = sample.int(n, n_train, replace=FALSE)
+  test_cases = setdiff(1:n, train_cases)
+  news_articles_train = news_articles[train_cases,]
+  news_articles_test = news_articles[test_cases,]
+  
+glm_base = glm(formula = viral ~ n_tokens_title + num_hrefs + num_self_hrefs + 
+                   num_imgs + num_videos + average_token_length + num_keywords + 
+                   data_channel_is_lifestyle + data_channel_is_entertainment + 
+                   data_channel_is_bus + data_channel_is_socmed + data_channel_is_tech + 
+                   data_channel_is_world + self_reference_min_shares + self_reference_avg_sharess + 
+                   weekday_is_monday + weekday_is_tuesday + weekday_is_wednesday + 
+                   weekday_is_thursday + weekday_is_friday + global_rate_positive_words + 
+                   global_rate_negative_words + avg_positive_polarity + min_positive_polarity + 
+                   max_positive_polarity + avg_negative_polarity + title_subjectivity + 
+                   title_sentiment_polarity + abs_title_sentiment_polarity + 
+                   self_reference_min_shares:self_reference_avg_sharess, data=news_articles_test, family = 'binomial')
+  
