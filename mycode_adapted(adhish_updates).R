@@ -76,7 +76,7 @@ stargazer(fe_lm1, fe_lm2, type = 'text',
 
 ###
 y = workdata$loghourlywage  # response variable
-d = workdata$logannualhw  # "treatment" variable
+d = workdata$minwage_change  # "treatment" variable
 
 
 model1 = glm(y ~ d + post + SEX + AGE + agesq + RACE + MARST + NCHILD
