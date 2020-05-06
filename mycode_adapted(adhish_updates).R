@@ -73,4 +73,23 @@ stargazer(fe_lm1, fe_lm2, type = 'text',
                            c("Year Fixed effects", "Yes", "Yes"),
                            c("Controls", "Yes", "Yes")),
           notes = "Standard errors clustered by State")
+###
+y = workdata$loghourlywage  # response variable
+d = workdata$logannualhw  # "treatment" variable
+
+
+model1 = glm(y ~ d + post + SEX + AGE + agesq + RACE + MARST + NCHILD
+             + NCHLT5 + YEAR , data=workdata) 
+summary(model1)$coef
+
+model2 = glm(d ~ y + post + SEX + AGE + agesq + RACE + MARST + NCHILD
+             + NCHLT5 + YEAR , data=workdata) 
+summary(model2)$coef
+
+t = workdata$YEAR
+s = factor(workdata$STATEFIP)
+interact = glm(y ~ d + s*t, data=workdata)
+summary(interact)
+summary(interact)$coef #This is giving us some insights
+dim(model.matrix(y ~ d + s*t, data=workdata)) #we can probably group all the controls and do something like this?
 
