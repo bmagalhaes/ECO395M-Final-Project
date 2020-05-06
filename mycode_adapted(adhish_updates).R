@@ -115,7 +115,16 @@ coef(treat)
 #dhat: weighted loghourlywage as per state
 dhat = predict(treat, x, type="response") %>% drop
 plot(dhat) #Obviously not for final report but this sort of tells us how there's not much correlation?
-cor(drop(dhat),d)^2 #Relatively low R-sq
+cor(drop(dhat),d)^2 #Relatively low R-sq - which is a good thing
 
+# dres - quasiexperimental variation in the treatment, i.e. what's independent from the controls
+dres = drop(d - dhat)
+causal = lm(y ~ dres + dhat)
+summary(causal) #coef of dres in -ve and insignificant
+
+#re-run lasso with dhat(2nd column) included unpenalized. Possibly useful to estimate effect modifiers
+causal2 = gamlr(cbind(d, dhat, x),y,free=2,lmr=1e-4)
+coef(causal2)
+summary(causal2) #gaussian gamlr with 333 inputs and 100 segments: Don't know how to comprehend
 
 
