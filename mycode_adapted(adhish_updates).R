@@ -1,3 +1,6 @@
+library(tidyverse)
+library(gamlr)
+library(stargazer)
 mydata<-minwage1617[,-c(2:6,8:11)]#delete identifier variables
 data_az = subset(mydata, STATEFIP != 53 & STATEFIP != 8 & STATEFIP != 23
                  & STATEFIP != 44)
@@ -70,3 +73,4 @@ stargazer(fe_lm1, fe_lm2, type = 'text',
                            c("Year Fixed effects", "Yes", "Yes"),
                            c("Controls", "Yes", "Yes")),
           notes = "Standard errors clustered by State")
+
