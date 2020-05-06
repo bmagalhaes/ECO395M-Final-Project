@@ -93,3 +93,11 @@ summary(interact)
 summary(interact)$coef #This is giving us some insights
 dim(model.matrix(y ~ d + s*t, data=workdata)) #we can probably group all the controls and do something like this?
 
+s = factor(s, levels=c(NA,levels(s)), exclude=NULL)
+x = sparse.model.matrix(~ (s + (y + post + SEX + AGE + agesq + RACE + MARST + NCHILD)^2*(t)), data=workdata)[,-1]
+dim(x)
+
+## naive lasso regression : I don't this this is relevant for our dataset
+#naive = gamlr(cbind(d,x),y)
+#coef(naive)["d",] # effect is AICc selected <0
+#summary(naive)$coef
