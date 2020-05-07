@@ -72,7 +72,18 @@ Method
 
 In this project, we will be estimating the causal effect by using a
 standard Diff-in-Diff method, and comparing its results with the simple
-difference in outcomes predicted by different methods.
+difference in outcomes predicted by MENTION THE PREDICTIVE MODELS.
+
+Our dataset is consisted of state level anual observations of the
+following variables: number of black male prisoners (bmprison), alcohol
+consumption per capita (alcohol), aids mortality (aidscapita), average
+household income (income), unemployment rate (ur), share of the
+population in poverty (poverty), share of the population which is
+african american (black) and share of the population which is 15 to 19
+years old (perc1519).
+
+RESULTS
+-------
 
 ### Differences-in-Differences
 
@@ -83,14 +94,6 @@ Cunningham's analysis, the baseline model we will be using is:
 
     ## bmprison ~ alcohol + aidscapita + income + ur + poverty + black + 
     ##     perc1519 + year + state + year_after1993 * state_texas
-
-Where 'bmprison' is the number of black male prisoners, 'alcohol' is the
-alcohol consumption per capita, 'aidscapita' is the aids mortality,
-'income' is the average household income, 'ur' is the unemployment rate,
-'poverty' is the share of the population in poverty, 'black' is the
-share of the population which is african american and 'perc1519' is the
-share of the population which is 15 to 19 years, being all of the
-variables in the state level.
 
     ## 
     ## =====================================================
@@ -124,3 +127,12 @@ INTERPRET F-TEST
     ## ------------------------------------------
     ## Mean      731.500 7.000 19.959    0.006   
     ## ------------------------------------------
+
+### LASSO
+
+### STEPWISE SELECTION
+
+### RANDOM FOREST?
+
+CONCLUSION
+----------
