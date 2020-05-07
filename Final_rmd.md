@@ -18,47 +18,41 @@ experiment occurs when an exogenous event changes the environment in
 which individuals opperate, and require observations of both treatment
 and control group before and after the change.
 
-This methodology is particularly powerfull since it neutralizes
-unobserved, but fixed, omitted variables (Angrist and Pischke, 2018).
-Nonetheless, it relies on a quite strong – and unfortunately not
-testable – assumption that the outcome in the multiple
+This methodology is particularly powerfull for infering causality since
+it neutralizes unobserved, but fixed, omitted variables (Angrist and
+Pischke, 2018). Nonetheless, it relies on a quite strong – and
+unfortunately not testable – assumption that the outcome in the multiple
 individuals/firms/states included in the analysis share the same trend
 over time, which is called parallel trends assumption.
 
-The table below illustrates a simple versionf of the
-Differences-in-Differences method and why this assumption is required.
-By decreasing the outcome after treatment from the outcome before
-treatment for a treated state, the difference (D1) is going to be the
-effect caused by the treatment (E) plus a trend (T). This step
-neutralizes unobserved factors of a particular state. For a state that
-wasn't treated, the difference (D1) before and after treatment is the
-trend (T) only. So, if we assume that T is the same for both states, we
-can decrease T, that was measured from the control state, from T + E in
-order to isolate the causal effect E.
+The table below illustrates a simple version of the Diff-in-Diff method
+and why this assumption is required. By decreasing the outcome after
+treatment from the outcome before treatment for a treated state, the
+difference (D1) is going to be the effect caused by the treatment (E)
+plus a trend (T). This step neutralizes unobserved factors of a
+particular state. For a state that wasn't treated, the difference (D1)
+before and after treatment is the trend (T) only. So, if we assume that
+T is the same for both states, we can decrease T, that was measured from
+the control state, from T + E in order to isolate the causal effect E.
 
 ![](https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-table1.png)
 
 This assumption is not testable because we don’t know what would’ve
-happened to the treatment state had it not been treated. What we can do
-is to test whether the trends were parallel before the treatment and
-argue that, if the assumption holds for the pre-treatment period, there
-might be no reason for it not hold in the post-treatment too.
+happened to the treatment state had it not been treated. But what if we
+could predict what would have happened to the treated state in this
+alternative world where it wasn’t treated without having to rely on the
+parallel trends assumption? In this particular study, we are going to
+compare the application of different suppervised learning predictive
+methods with the Diff-in-Diff estimator of an ongoing research project.
 
-But what if we could predict what would have happened to the treated
-state in this alternative world where it wasn’t treated without having
-to rely on the parallel trends assumption? In this particular study, we
-are going to compare the application of different predictive methods
-with the Differences-in-Differences estimator of a research question.
-
-Research topic brief summary
-----------------------------
+### Research topic brief summary
 
 During the 1980s, the state of Texas lost a civil action lawsuit where a
 prisoner argued that the state Department of Corrections was engaging in
 unconstitutional practices regarding prisoners conditions. The court
 ruled in favor of the prisoner, and forced the state to pursue a series
-of settlements. Among other orders, the counter placed constraints on
-the number of inmates allowed per cells. Given this constraint, state
+of settlements. Among other orders, the court placed constraints on the
+number of inmates allowed per cells. Given this constraint, state
 legislators approved a billion dollar prison construction project that
 ended up doubling the state’s capacity within 3 years.
 
@@ -69,14 +63,18 @@ use it as a natural experiment to estimate the effect of prison
 expansion on incarceration. He uses the synthetic control method to
 predict counterfactuals as in Abadie et al. (2010) by using a set of
 covariates and multiple control states to build a predictive model that
-minimizes root mean square error.
+minimizes root mean square error. His preliminar results indicates that
+an increase in state prison capacity caused an increase in black male
+incarceration.
 
-In this project, we will be estimating the causal effect by using the
+Method
+------
+
+In this project, we will be estimating the causal effect by using a
 standard Diff-in-Diff method, and comparing its results with the simple
 difference in outcomes predicted by different methods.
 
-Differences-in-Differences
---------------------------
+### Differences-in-Differences
 
 In order to preserve the same parameters that were included in
 Cunningham's analysis, the baseline model we will be using is:
@@ -116,7 +114,7 @@ INTERPRET THE MODEL'S RESULT
 
 INTERPRET LEADS AND LAGS
 
-![](Final_rmd_files/figure-markdown_strict/4.3.3-1.png)![](Final_rmd_files/figure-markdown_strict/4.3.3-2.png)
+![](Final_rmd_files/figure-markdown_strict/4.2.3-1.png)![](Final_rmd_files/figure-markdown_strict/4.2.3-2.png)
 
 INTERPRET F-TEST
 
