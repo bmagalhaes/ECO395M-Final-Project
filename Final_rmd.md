@@ -10,13 +10,15 @@ Ji Heon Shim - UTEID js93996
 Introduction
 ------------
 
-Empirical economists are very often interested in estimating the impact
-of certain events or policies on a particular outcome. Wooldridge (2013)
-describes the effectiveness applications of Differences-in-Differences
-methodology when the data arise from a natural experiment. This kind of
-experiment occurs when an exogenous event changes the environment in
-which individuals opperate, and require observations of both treatment
-and control group before and after the change.
+Assessing policy effects and making predictions based on it has always
+been a key part of quantitative economics. Empirical economists are very
+often interested in estimating the impact of certain events or policies
+on a particular outcome. Wooldridge (2013) describes the effectiveness
+applications of Differences-in-Differences methodology when the data
+arise from a natural experiment. This kind of experiment occurs when an
+exogenous event changes the environment in which individuals opperate,
+and require observations of both treatment and control group before and
+after the change.
 
 This methodology is particularly powerfull for infering causality since
 it neutralizes unobserved, but fixed, omitted variables (Angrist and
@@ -38,12 +40,17 @@ the control state, from T + E in order to isolate the causal effect E.
 ![](https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-table1.png)
 
 This assumption is not testable because we don’t know what would’ve
-happened to the treatment state had it not been treated. But what if we
-could predict what would have happened to the treated state in this
-alternative world where it wasn’t treated without having to rely on the
-parallel trends assumption? In this particular study, we compared the
-application of different suppervised learning predictive methods with
-the Diff-in-Diff estimator of the following research project.
+happened to the treatment state had it not been treated.
+
+But what if we could predict what would have happened to the treated
+state in this alternative world where it wasn’t treated without having
+to rely on the parallel trends assumption?
+
+INTRODUCTION TO PREDICTIVE MODELS
+
+In this particular study, we compared the application of different
+suppervised learning predictive methods with the Diff-in-Diff estimator
+of the following research project.
 
 ### Research topic brief summary
 
@@ -120,15 +127,15 @@ all else fixed.
     ## =====================================================
     ## Note:                     *p<0.1; **p<0.05; ***p<0.01
 
-When decomposing the effect in each year, get the results shown in the
-figure below. The coefficients capture how the treatment group differs
-from the control group when controlling for multiple factors and when
-considering state and year fixed effects. It also allows us the test the
-plausibility of parallel trends in the pre-treatment period. Since we
-are including controls and fixed effects, there should be less to be
-explained by the coefficients to the left of the grey vertical line
-since the only difference should be the treatment itself, and it didn't
-occur in years prior to the intervention.
+When decomposing the effect in each year, we get the point estimates
+shown in the figure below. The coefficients capture how the treatment
+group differs from the control group when controlling for multiple
+factors and when considering state and year fixed effects. It also
+allows us the test the plausibility of parallel trends in the
+pre-treatment period. As we are including controls and fixed effects,
+there should be less to be explained by the coefficients to the left of
+the grey vertical line since the only difference should be the treatment
+itself, and it didn't occur in years prior to the intervention.
 
 ![](Final_rmd_files/figure-markdown_strict/4.2.3-1.png)![](Final_rmd_files/figure-markdown_strict/4.2.3-2.png)
 

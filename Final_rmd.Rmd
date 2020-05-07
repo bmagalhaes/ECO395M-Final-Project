@@ -38,7 +38,7 @@ table1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project
 graph1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-graph1.png'
 ```
 
-Empirical economists are very often interested in estimating the impact of certain events or policies on a particular outcome. Wooldridge (2013) describes the effectiveness applications of Differences-in-Differences methodology when the data arise from a natural experiment. This kind of experiment occurs when an exogenous event changes the environment in which individuals opperate, and require observations of both treatment and control group before and after the change.
+Assessing policy effects and making predictions based on it has always been a key part of quantitative economics. Empirical economists are very often interested in estimating the impact of certain events or policies on a particular outcome. Wooldridge (2013) describes the effectiveness applications of Differences-in-Differences methodology when the data arise from a natural experiment. This kind of experiment occurs when an exogenous event changes the environment in which individuals opperate, and require observations of both treatment and control group before and after the change.
 
 This methodology is particularly powerfull for infering causality since it neutralizes unobserved, but fixed, omitted variables (Angrist and Pischke, 2018). Nonetheless, it relies on a quite strong – and unfortunately not testable – assumption that the outcome in the multiple individuals/firms/states included in the analysis share the same trend over time, which is called parallel trends assumption.
 
@@ -48,7 +48,13 @@ The table below illustrates a simple version of the Diff-in-Diff method and why 
 include_graphics(table1_url)
 ```
 
-This assumption is not testable because we don’t know what would’ve happened to the treatment state had it not been treated. But what if we could predict what would have happened to the treated state in this alternative world where it wasn’t treated without having to rely on the parallel trends assumption? In this particular study, we compared the application of different suppervised learning predictive methods with the Diff-in-Diff estimator of the following research project.
+This assumption is not testable because we don’t know what would’ve happened to the treatment state had it not been treated.
+
+But what if we could predict what would have happened to the treated state in this alternative world where it wasn’t treated without having to rely on the parallel trends assumption?
+
+INTRODUCTION TO PREDICTIVE MODELS
+
+In this particular study, we compared the application of different suppervised learning predictive methods with the Diff-in-Diff estimator of the following research project.
 
 ### Research topic brief summary
 
@@ -100,8 +106,7 @@ stargazer(fe_lm, type = 'text',
           omit.stat = "ser")
 ```
 
-
-When decomposing the effect in each year, get the results shown in the figure below. The coefficients capture how the treatment group differs from the control group when controlling for multiple factors and when considering state and year fixed effects. It also allows us the test the plausibility of parallel trends in the pre-treatment period. Since we are including controls and fixed effects, there should be less to be explained by the coefficients to the left of the grey vertical line since the only difference should be the treatment itself, and it didn't occur in years prior to the intervention.
+When decomposing the effect in each year, we get the point estimates shown in the figure below. The coefficients capture how the treatment group differs from the control group when controlling for multiple factors and when considering state and year fixed effects. It also allows us the test the plausibility of parallel trends in the pre-treatment period. As we are including controls and fixed effects, there should be less to be explained by the coefficients to the left of the grey vertical line since the only difference should be the treatment itself, and it didn't occur in years prior to the intervention.
 
 ```{r 4.2.3, echo=FALSE, warning=FALSE}
 texas = texas %>%
