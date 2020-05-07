@@ -98,8 +98,3 @@ f_test = linearHypothesis(fe_leads, c("lead1 = lead2",
                                                 "lead7 = 0"))
 
 stargazer(f_test, flip = TRUE, type = 'text', summary.stat = c("mean"))
-
-texas_dummies <- dummy.data.frame(texas, names = c("state") , sep = ".")
-
-texas$trend = texas$year - 1985
-
