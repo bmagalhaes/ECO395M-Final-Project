@@ -54,7 +54,7 @@ Research topic brief summary
 ----------------------------
 
 During the 1980s, the state of Texas lost a civil action lawsuit where a
-prisoner argued that the state Department of Corrections was engagin in
+prisoner argued that the state Department of Corrections was engaging in
 unconstitutional practices regarding prisoners conditions. The court
 ruled in favor of the prisoner, and forced the state to pursue a series
 of settlements. Among other orders, the counter placed constraints on
@@ -62,8 +62,67 @@ the number of inmates allowed per cells. Given this constraint, state
 legislators approved a billion dollar prison construction project that
 ended up doubling the state’s capacity within 3 years.
 
-The nature of this expansion allow us to use it as a natural experiment
-to estimate the effect of prison expansion on incarceration. The
-baseline model we will be using is bmprison ~ alcohol + aidscapita +
-income + ur + poverty + black + perc1519 + year + state +
-year\_after1993\*state\_texas (analogus to the original analysis)
+![](https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-graph1.png)
+
+Cunningham (2020) argues that the nature of this expansion allows us to
+use it as a natural experiment to estimate the effect of prison
+expansion on incarceration. He uses the synthetic control method to
+predict counterfactuals as in Abadie et al. (2010) by using a set of
+covariates and multiple control states to build a predictive model that
+minimizes root mean square error.
+
+In this project, we will be estimating the causal effect by using the
+standard Diff-in-Diff method, and comparing its results with the simple
+difference in outcomes predicted by different methods.
+
+Differences-in-Differences
+--------------------------
+
+In order to preserve the same parameters that were included in
+Cunningham's analysis, the baseline model we will be using is:
+
+    bmprison ~ alcohol + aidscapita + income + ur + poverty + black + perc1519 + year + state + year_after1993*state_texas
+
+    ## bmprison ~ alcohol + aidscapita + income + ur + poverty + black + 
+    ##     perc1519 + year + state + year_after1993 * state_texas
+
+Where 'bmprison' is the number of black male prisoners, 'alcohol' is the
+alcohol consumption per capita, 'aidscapita' is the aids mortality,
+'income' is the average household income, 'ur' is the unemployment rate,
+'poverty' is the share of the population in poverty, 'black' is the
+share of the population which is african american and 'perc1519' is the
+share of the population which is 15 to 19 years, being all of the
+variables in the state level.
+
+    ## 
+    ## =====================================================
+    ##                               Dependent variable:    
+    ##                           ---------------------------
+    ##                              Black Male Prisoners    
+    ## -----------------------------------------------------
+    ## Prison capacity expansion        28,454.820***       
+    ##                                   (1,235.930)        
+    ##                                                      
+    ## -----------------------------------------------------
+    ## State Fixed effects                   Yes            
+    ## Year Fixed effects                    Yes            
+    ## Observations                          816            
+    ## R2                                   0.947           
+    ## Adjusted R2                          0.942           
+    ## =====================================================
+    ## Note:                     *p<0.1; **p<0.05; ***p<0.01
+
+INTERPRET THE MODEL'S RESULT
+
+INTERPRET LEADS AND LAGS
+
+![](Final_rmd_files/figure-markdown_strict/4.3.3-1.png)![](Final_rmd_files/figure-markdown_strict/4.3.3-2.png)
+
+INTERPRET F-TEST
+
+    ## 
+    ## ==========================================
+    ## Statistic Res.Df   Df   Chisq  Pr(> Chisq)
+    ## ------------------------------------------
+    ## Mean      731.500 7.000 19.959    0.006   
+    ## ------------------------------------------

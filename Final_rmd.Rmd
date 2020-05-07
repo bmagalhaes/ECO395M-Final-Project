@@ -20,8 +20,21 @@ Ji Heon Shim - UTEID js93996
 ```{r setup1, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(knitr)
+library(tidyverse)
+library(haven)
+library(stargazer)
+library(lmtest)
+library(lfe)
+library(xtable)
+library(tidytable)
+library(grid)
+library(car)
+
+texas = read.csv("https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/texas.csv")
 
 table1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-table1.png'
+
+graph1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-graph1.png'
 ```
 
 Empirical economists are very often interested in estimating the impact of certain events or policies on a particular outcome. Wooldridge (2013) describes the effectiveness applications of Differences-in-Differences methodology when the data arise from a natural experiment. This kind of experiment occurs when an exogenous event changes the environment in which individuals opperate, and require observations of both treatment and control group before and after the change.
@@ -40,10 +53,119 @@ But what if we could predict what would have happened to the treated state in th
 
 ## Research topic brief summary
 
-During the 1980s, the state of Texas lost a civil action lawsuit where a prisoner argued that the state Department of Corrections was engagin in unconstitutional practices regarding prisoners conditions. The court ruled in favor of the prisoner, and forced the state to  pursue a series of settlements. Among other orders, the counter placed constraints on the number of inmates allowed per cells. Given this constraint, state legislators approved a billion dollar prison construction project that ended up doubling the state’s capacity within 3 years. 
+During the 1980s, the state of Texas lost a civil action lawsuit where a prisoner argued that the state Department of Corrections was engaging in unconstitutional practices regarding prisoners conditions. The court ruled in favor of the prisoner, and forced the state to  pursue a series of settlements. Among other orders, the counter placed constraints on the number of inmates allowed per cells. Given this constraint, state legislators approved a billion dollar prison construction project that ended up doubling the state’s capacity within 3 years.
 
-The nature of this expansion allow us to use it as a natural experiment to estimate the effect of prison expansion on incarceration. The baseline model we will be using is bmprison ~ alcohol + aidscapita + income + ur + poverty + black + perc1519 + year + state + year_after1993*state_texas (analogus to the original analysis)
+```{r 4.2.1, echo= FALSE, warning = FALSE}
+include_graphics(graph1_url)
+```
 
+Cunningham (2020) argues that the nature of this expansion allows us to use it as a natural experiment to estimate the effect of prison expansion on incarceration. He uses the synthetic control method to predict counterfactuals as in Abadie et al. (2010) by using a set of covariates and multiple control states to build a predictive model that minimizes root mean square error.
 
+In this project, we will be estimating the causal effect by using the standard Diff-in-Diff method, and comparing its results with the simple difference in outcomes predicted by different methods.
 
+## Differences-in-Differences
+
+In order to preserve the same parameters that were included in Cunningham's analysis, the baseline model we will be using is:
+
+```{r 4.3.1, echo= TRUE, warning = FALSE}
+bmprison ~ alcohol + aidscapita + income + ur + poverty + black + perc1519 + year + state + year_after1993*state_texas
+```
+
+Where 'bmprison' is the number of black male prisoners, 'alcohol' is the alcohol consumption per capita, 'aidscapita' is the aids mortality, 'income' is the average household income, 'ur' is the unemployment rate, 'poverty' is the share of the population in poverty, 'black' is the share of the population which is african american and 'perc1519' is the share of the population which is 15 to 19 years, being all of the variables in the state level.
+
+```{r 4.3.2, echo=FALSE, warning=FALSE}
+texas$post = ifelse(texas$statefip == 48 & texas$year >= 1993, 1, 0)
+
+texas = texas %>%
+  mutate(year_fixed = as_factor(year)) %>%
+  mutate(statefip = as_factor(statefip))
+
+fe_lm = felm(bmprison ~ post + alcohol + aidscapita + income + ur + poverty + 
+               black + perc1519 | year_fixed + statefip | 0 | 0, data=texas)
+
+stargazer(fe_lm, type = 'text',
+          covariate.labels = "Prison capacity expansion",
+          omit = c("alcohol", "aidscapita", "income", "ur", "poverty",
+                   "black", "perc1519"),
+          dep.var.labels = "Black Male Prisoners",
+            add.lines = list(c("State Fixed effects", "Yes"),
+                           c("Year Fixed effects", "Yes")),
+          omit.stat = "ser")
+```
+
+INTERPRET THE MODEL'S RESULT
+
+INTERPRET LEADS AND LAGS
+
+```{r 4.3.3, echo=FALSE, warning=FALSE}
+texas = texas %>%
+  mutate(time_til = ifelse(statefip == 48, year - 1993, 0),
+    lead1 = case_when(time_til == -1 ~ 1, TRUE ~ 0),
+    lead2 = case_when(time_til == -2 ~ 1, TRUE ~ 0),
+    lead3 = case_when(time_til == -3 ~ 1, TRUE ~ 0),
+    lead4 = case_when(time_til == -4 ~ 1, TRUE ~ 0),
+    lead5 = case_when(time_til == -5 ~ 1, TRUE ~ 0),
+    lead6 = case_when(time_til == -6 ~ 1, TRUE ~ 0),
+    lead7 = case_when(time_til == -7 ~ 1, TRUE ~ 0),
+    lead8 = case_when(time_til == -8 ~ 1, TRUE ~ 0),
+    lag0 = case_when(time_til == 0 ~ 1, TRUE ~ 0),
+    lag1 = case_when(time_til == 1 ~ 1, TRUE ~ 0),
+    lag2 = case_when(time_til == 2 ~ 1, TRUE ~ 0),
+    lag3 = case_when(time_til == 3 ~ 1, TRUE ~ 0),
+    lag4 = case_when(time_til == 4 ~ 1, TRUE ~ 0),
+    lag5 = case_when(time_til == 5 ~ 1, TRUE ~ 0),
+    lag6 = case_when(time_til == 6 ~ 1, TRUE ~ 0),
+    lag7 = case_when(time_til == 7 ~ 1, TRUE ~ 0)
+  )
+
+fe_leads = felm(bmprison ~ lead1 + lead2 + lead3 + lead4 + lead5 + lead6 + lead7
+                + lead8 + lag1 + lag2 + lag3 + lag4 + lag5 + lag6 + lag7
+                + alcohol + aidscapita + income + ur + poverty + black + perc1519
+                | year_fixed + statefip | 0 | 0, data=texas)
+
+plot_order <- c("lead8", "lead7", "lead6", "lead5", "lead4", "lead3", "lead2",
+                "lead1", "lag1", "lag2", "lag3", "lag4", "lag5", 
+                "lag6", "lag7")
+
+leadslags_bmprison <- tibble(
+  sd = c(fe_leads$se[plot_order], 0),
+  mean = c(coef(fe_leads)[plot_order], 0),
+  label = c(-8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 0)
+)
+
+text_asmrh = "DD Coefficient = 28454.82 (se = 1235.93)"
+
+plot_1 = leadslags_bmprison %>%
+  ggplot(aes(x = label, y = mean, ymin = mean-1.96*sd, ymax = mean+1.96*sd)) +
+  geom_point(color = "dark blue") +
+  geom_line(aes(y = mean+1.96*sd, x=label), colour = 'dark blue', linetype = "dashed") +
+  geom_line(aes(y = mean-1.96*sd, x=label), colour = 'dark blue', linetype = "dashed")+
+  geom_line(color = "dark blue") +
+  geom_ribbon(alpha = 0.4, fill = "light blue") +
+  theme_bw() +
+  xlab("Years Relative to Prison Expansion") +
+  ylab("Black Male Prison") +
+  geom_hline(yintercept = 0, color = "dark grey", size = 0.8) +
+  geom_vline(xintercept = 0, color = "dark grey", size = 0.8) +
+  geom_hline(yintercept = 28454.8160032, color = "red", size = 1.2) +
+  scale_x_continuous(breaks= c(-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7)) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank()) +
+  annotation_custom(grid.text(text_asmrh, x=0.30,  y=0.88,
+                              gp=gpar(col="black", fontsize=8, fontface="bold")))
+plot_1
+```
+
+INTERPRET F-TEST
+
+```{r 4.3.4, echo=FALSE, warning=FALSE}
+f_test = linearHypothesis(fe_leads, c("lead1 = lead2",
+                                                "lead2 = lead3",
+                                                "lead3 = lead4",
+                                                "lead4 = lead5",
+                                                "lead5 = lead6",
+                                                "lead6 = lead7",
+                                                "lead7 = 0"))
+
+stargazer(f_test, flip = TRUE, type = 'text', summary.stat = c("mean"))
+```
 
