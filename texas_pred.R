@@ -3,6 +3,7 @@ library(kableExtra)
 library(randomForest)
 library(gbm)
 library(pdp)
+library(mosaic)
 
 texas$trend = texas$year - 1985
 
@@ -10,6 +11,8 @@ texas_train = subset(texas, post == 0)
 texas_lasso <- dummy.data.frame(texas_train, names = c("statefip", "year_fixed"))
 texas_lasso$statefip = texas_train$statefip
 texas_lasso$year_fixed = texas_train$year_fixed
+
+### STEPWISE
 
 base_model = lm(bmprison ~ crack + alcohol + income + ur + poverty + black 
                 + perc1519 + aidscapita + year_fixed + statefip,
@@ -28,7 +31,7 @@ model1 = lm(formula = bmprison ~ crack + alcohol + income + ur + poverty +
             data = texas_train)
 
 N=nrow(texas_train)
-K=100
+K=10
 fold_id = rep_len(1:K, N)
 fold_id = sample(fold_id, replace = FALSE)
 err_save = rep(0, K)
@@ -46,6 +49,8 @@ for(i in 1:K){
 
 sqrt(mean(err_save))
 sqrt(mean(err_save2))
+
+### LASSO
 
 texas_x = sparse.model.matrix(bmprison ~ (crack + alcohol + income + ur + poverty + black 
                                           + perc1519 + aidscapita + year_fixed + statefip)^2, data=texas_lasso)[, -1]
@@ -93,10 +98,10 @@ for(i in 1:K){
   y_test2 = texas_lasso$bmprison[-train_set2]
   model2_train = lm(model2, data=texas_lasso[train_set2,])
   yhat_test2 = predict(model2_train, newdata = texas_lasso[-train_set2,])
-  err_save2[i] = mean((y_test2-yhat_test2)^2)
+  err_save_lasso[i] = mean((y_test2-yhat_test2)^2)
 }
 
-sqrt(mean(err_save2))
+sqrt(mean(err_save_lasso))
 
 texas_general <- dummy.data.frame(texas, names = c("statefip", "year_fixed"))
 texas_general$statefip = texas$statefip
@@ -105,24 +110,151 @@ texas_general$year_fixed = texas$year_fixed
 model2_test = lm(model2, data=texas_lasso)
 texas_general$yhat = predict(model2_test, newdata = texas_general)
 
-subset(texas_general, statefip == 48) %>%
-  ggplot(aes(x = year)) +
-  geom_line(aes(y = bmprison), color = "dark blue") +
-  geom_line(aes(y = yhat), color = "dark blue", linetype = "dashed") 
-  theme_bw() +
-  xlab("Years Relative to Prison Expansion") +
-  ylab("Black Male Prison") +
-  geom_hline(yintercept = 1993, color = "dark grey", size = 0.8) +
-  geom_vline(xintercept = 0, color = "dark grey", size = 0.8) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
-
 random_state = sample(as.numeric(unique(texas_general$statefip)), size=5)
-  
+
 subset(texas_general, statefip == 48 | statefip == random_state[1] | 
          statefip == random_state[2] | statefip == random_state[3] |
          statefip == random_state[4] | statefip == random_state[5]) %>%
-    ggplot(aes(x = year, colour=statefip)) +
-    geom_line(aes(y = bmprison)) +
-    geom_line(aes(y = yhat), linetype = "dashed")
+  ggplot(aes(x = year, colour=state)) +
+  geom_line(aes(y = bmprison)) +
+  geom_line(aes(y = yhat), linetype = "dashed") +
+  theme_bw() +
+  xlab("Year") +
+  ylab("Black Male Incarceration") +
+  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
 
+### RANDOM FOREST
 
+err_save4 = rep(0, K)
+system.time(for(i in 1:K){
+  train_set4 = which(fold_id != i)
+  y_test4 = texas_train$bmprison[-train_set4]
+  model4_train = randomForest(bmprison ~ (crack + alcohol + income + ur + poverty + black 
+                                          + perc1519 + aidscapita + year_fixed + statefip), data=texas_train[train_set4,], ntree=300)
+  yhat_test4 = predict(model4_train, newdata = texas_train[-train_set4,])
+  err_save4[i] = mean((y_test4-yhat_test4)^2)
+})
+
+sqrt(mean(err_save4))
+
+# BOOSTING
+
+err_save5 = rep(0, K)
+system.time(for(i in 1:K){
+  train_set5 = which(fold_id != i)
+  y_test5 = texas_train$bmprison[-train_set5]
+  model5_train <- gbm(bmprison ~ (crack + alcohol + income + ur + poverty + black 
+                                  + perc1519 + aidscapita + year_fixed + statefip), data=texas_train[train_set5,], interaction.depth=4, n.trees = 300, shrinkage =.05)
+  yhat_test5 = predict(model5_train, newdata = texas_train[-train_set5,], n.trees =300)
+  err_save5[i] = mean((y_test5-yhat_test5)^2)
+})
+
+sqrt(mean(err_save5))
+
+model5_test <- gbm(bmprison ~ (crack + alcohol + income + ur + poverty + black 
+                                + perc1519 + aidscapita + year_fixed + statefip), data=texas_train, interaction.depth=4, n.trees = 300, shrinkage =.05)
+
+predict.gbm <- function (object, newdata, n.trees, type = "link", single.tree = FALSE, ...) {
+  if (missing(n.trees)) {
+    if (object$train.fraction < 1) {
+      n.trees <- gbm.perf(object, method = "test", plot.it = FALSE)
+    }
+    else if (!is.null(object$cv.error)) {
+      n.trees <- gbm.perf(object, method = "cv", plot.it = FALSE)
+    }
+    else {
+      n.trees <- length(object$train.error)
+    }
+    cat(paste("Using", n.trees, "trees...\n"))
+    gbm::predict.gbm(object, newdata, n.trees, type, single.tree, ...)
+  }
+}
+
+texas_general$yhatRF = predict.gbm(model5_test, newdata = texas_general)
+
+subset(texas_general, statefip == 48 | statefip == random_state[1] | 
+         statefip == random_state[2] | statefip == random_state[3] |
+         statefip == random_state[4] | statefip == random_state[5]) %>%
+  ggplot(aes(x = year, colour=state)) +
+  geom_line(aes(y = bmprison)) +
+  geom_line(aes(y = yhatRF), linetype = "dashed") +
+  theme_bw() +
+  xlab("Year") +
+  ylab("Black Male Incarceration") +
+  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+
+##
+
+texas_pred = c(1:nrow(texas))
+texas_pred = as.data.frame(texas_pred)
+
+for(i in 1:1000) {
+  train_resampling = resample(texas_train)
+  boot_train <- gbm(bmprison ~ (crack + alcohol + income + ur + poverty + black 
+                                + perc1519 + aidscapita + year_fixed + statefip), data=train_resampling, interaction.depth=4, n.trees = 300, shrinkage =.05)
+  yhat = predict.gbm(boot_train, newdata = texas_general)
+  texas_pred = cbind(texas_pred,yhat)
+}
+
+texas_pred$texas_pred = NULL
+texas_pred$mean = rowMeans(texas_pred, na.rm = FALSE, dims = 1)
+texas_pred$se = apply(texas_pred[,-1001], 1, sd)
+texas_general$yhat_RF_mean = texas_pred$mean
+texas_general$yhat_RF_se = texas_pred$se
+
+subset(texas_general, statefip == 48) %>%
+  ggplot(aes(x = year, ymin = yhat_RF_mean-1.96*yhat_RF_se, ymax = yhat_RF_mean+1.96*yhat_RF_se)) +
+  geom_line(aes(y = bmprison)) +
+  geom_line(aes(y = yhat_RF_mean), color = "dark blue", linetype = "dashed") +
+  geom_line(aes(y = yhat_RF_mean+1.96*yhat_RF_se), color = 'light blue',linetype = "dashed") +
+  geom_line(aes(y = yhat_RF_mean-1.96*yhat_RF_se), color = 'light blue',linetype = "dashed")+
+  geom_ribbon(alpha = 0.4, fill = "light blue") +
+  theme_bw() +
+  xlab("Year") +
+  ylab("Black Male Incarceration") +
+  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+
+### I WILL WORK OUT LATER
+# 
+# texas_train_new = dummy.data.frame(texas_train, names = c("statefip", "year_fixed"))
+# texas_train_new$statefip = texas_train$statefip
+# texas_train_new$year_fixed = texas_train$year_fixed
+# 
+# texas_train_new$bmprison[texas_train_new$statefip == random_state[1] & texas_train_new$year >= 1993] = ""
+# texas_train_new$bmprison[texas_train_new$statefip == random_state[2] & texas_train_new$year >= 1993] = ""
+# texas_train_new$bmprison[texas_train_new$statefip == random_state[3] & texas_train_new$year >= 1993] = ""
+# texas_train_new$bmprison[texas_train_new$statefip == random_state[4] & texas_train_new$year >= 1993] = ""
+# texas_train_new$bmprison[texas_train_new$statefip == random_state[5] & texas_train_new$year >= 1993] = ""
+# 
+# texas_pred_comp = c(1:nrow(texas))
+# texas_pred_comp = as.data.frame(texas_pred_comp)
+# 
+# for(i in 1:1000) {
+#   train_resampling = resample(texas_train_new)
+#   boot_train <- gbm(bmprison ~ (crack + alcohol + income + ur + poverty + black 
+#                                 + perc1519 + aidscapita + year_fixed + statefip), data=train_resampling, interaction.depth=4, n.trees = 300, shrinkage =.05)
+#   yhat = predict.gbm(boot_train, newdata = texas_general)
+#   texas_pred_comp = cbind(texas_pred_comp,yhat)
+# }
+# 
+# texas_pred_comp$texas_pred_comp = NULL
+# texas_pred_comp$mean = rowMeans(texas_pred, na.rm = FALSE, dims = 1)
+# texas_pred_comp$se = apply(texas_pred[,-1001], 1, sd)
+# texas_general$yhat_RF_mean_comp = texas_pred_comp$mean
+# texas_general$yhat_RF_se_comp = texas_pred_comp$se
+# 
+# subset(texas_general, statefip == random_state[1]) %>%
+#   ggplot(aes(x = year, ymin = yhat_RF_mean-1.96*yhat_RF_se, ymax = yhat_RF_mean+1.96*yhat_RF_se)) +
+#   geom_line(aes(y = bmprison)) +
+#   geom_line(aes(y = yhat_RF_mean), color = "dark blue", linetype = "dashed") +
+#   geom_line(aes(y = yhat_RF_mean+1.96*yhat_RF_se), color = 'light blue',linetype = "dashed") +
+#   geom_line(aes(y = yhat_RF_mean-1.96*yhat_RF_se), color = 'light blue',linetype = "dashed")+
+#   geom_ribbon(alpha = 0.4, fill = "light blue") +
+#   theme_bw() +
+#   xlab("Year") +
+#   ylab("Black Male Incarceration") +
+#   geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+#   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
