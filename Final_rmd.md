@@ -41,9 +41,9 @@ This assumption is not testable because we don’t know what would’ve
 happened to the treatment state had it not been treated. But what if we
 could predict what would have happened to the treated state in this
 alternative world where it wasn’t treated without having to rely on the
-parallel trends assumption? In this particular study, we are going to
-compare the application of different suppervised learning predictive
-methods with the Diff-in-Diff estimator of an ongoing research project.
+parallel trends assumption? In this particular study, we compared the
+application of different suppervised learning predictive methods with
+the Diff-in-Diff estimator of the following research project.
 
 ### Research topic brief summary
 
@@ -61,18 +61,21 @@ ended up doubling the state’s capacity within 3 years.
 Cunningham (2020) argues that the nature of this expansion allows us to
 use it as a natural experiment to estimate the effect of prison
 expansion on incarceration. He uses the synthetic control method to
-predict counterfactuals as in Abadie et al. (2010) by using a set of
-covariates and multiple control states to build a predictive model that
-minimizes root mean square error. His preliminar results indicates that
-an increase in state prison capacity caused an increase in black male
-incarceration.
+predict counterfactuals as in Abadie et al. (2010) by searching for the
+set of weights that generate the best fitting convex combination of the
+control units, being the best the one that minimizes root mean square
+error in the pre-treatment period.
+
+His preliminar results indicate that an increase in state prison
+capacity caused an increase in black male incarceration. We used a set
+of alternative methods to estimate the causal effect.
 
 Method
 ------
 
-In this project, we will be estimating the causal effect by using a
-standard Diff-in-Diff method, and comparing its results with the simple
-difference in outcomes predicted by MENTION THE PREDICTIVE MODELS.
+In this project, we used a standard Diff-in-Diff model, and compared its
+results with the simple difference in outcomes predicted by MENTION THE
+PREDICTIVE MODELS.
 
 Our dataset is consisted of state level anual observations of the
 following variables: number of black male prisoners (bmprison), alcohol
@@ -88,12 +91,16 @@ RESULTS
 ### Differences-in-Differences
 
 In order to preserve the same parameters that were included in
-Cunningham's analysis, the baseline model we will be using is:
+Cunningham's analysis, the baseline model is:
 
     bmprison ~ alcohol + aidscapita + income + ur + poverty + black + perc1519 + year + state + year_after1993*state_texas
 
     ## bmprison ~ alcohol + aidscapita + income + ur + poverty + black + 
     ##     perc1519 + year + state + year_after1993 * state_texas
+
+The model indicates that the expansion of the state prison capacity is
+associated with an increase of 28,454.82 black male prisoners, holding
+all else fixed.
 
     ## 
     ## =====================================================
@@ -113,13 +120,23 @@ Cunningham's analysis, the baseline model we will be using is:
     ## =====================================================
     ## Note:                     *p<0.1; **p<0.05; ***p<0.01
 
-INTERPRET THE MODEL'S RESULT
-
-INTERPRET LEADS AND LAGS
+When decomposing the effect in each year, get the results shown in the
+figure below. The coefficients capture how the treatment group differs
+from the control group when controlling for multiple factors and when
+considering state and year fixed effects. It also allows us the test the
+plausibility of parallel trends in the pre-treatment period. Since we
+are including controls and fixed effects, there should be less to be
+explained by the coefficients to the left of the grey vertical line
+since the only difference should be the treatment itself, and it didn't
+occur in years prior to the intervention.
 
 ![](Final_rmd_files/figure-markdown_strict/4.2.3-1.png)![](Final_rmd_files/figure-markdown_strict/4.2.3-2.png)
 
-INTERPRET F-TEST
+A test of joint significance of the leads coefficients, as in Kearney
+and Levine (2015), reject the null hypothesis that they are jointly
+equal to zero (p-value = 0.006). Therefore, it provides evidence that
+the parallel trends assumption doesn't hold even in the pre-treatment
+period, indicating the necessity of exploring different methods.
 
     ## 
     ## ==========================================
