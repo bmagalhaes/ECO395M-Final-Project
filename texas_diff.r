@@ -7,6 +7,7 @@ library(xtable)
 library(tidytable)
 library(grid)
 library(car)
+library(dummies)
 
 texas = read.csv("https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/texas.csv")
 
@@ -97,9 +98,6 @@ f_test = linearHypothesis(fe_leads, c("lead1 = lead2",
                                                 "lead7 = 0"))
 
 stargazer(f_test, flip = TRUE, type = 'text', summary.stat = c("mean"))
-
-install.packages("dummies")
-library(dummies)
 
 texas_dummies <- dummy.data.frame(texas, names = c("state") , sep = ".")
 

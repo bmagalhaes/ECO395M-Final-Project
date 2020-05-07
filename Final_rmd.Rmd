@@ -135,7 +135,7 @@ leadslags_bmprison <- tibble(
 
 text_asmrh = "DD Coefficient = 28454.82 (se = 1235.93)"
 
-plot_1 = leadslags_bmprison %>%
+leadslags_bmprison %>%
   ggplot(aes(x = label, y = mean, ymin = mean-1.96*sd, ymax = mean+1.96*sd)) +
   geom_point(color = "dark blue") +
   geom_line(aes(y = mean+1.96*sd, x=label), colour = 'dark blue', linetype = "dashed") +
@@ -152,7 +152,6 @@ plot_1 = leadslags_bmprison %>%
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank()) +
   annotation_custom(grid.text(text_asmrh, x=0.30,  y=0.88,
                               gp=gpar(col="black", fontsize=8, fontface="bold")))
-plot_1
 ```
 
 INTERPRET F-TEST
