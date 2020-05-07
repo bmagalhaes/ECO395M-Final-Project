@@ -19,6 +19,17 @@ texas = texas %>%
 fe_lm = felm(bmprison ~ post + alcohol + aidscapita + income + ur + poverty + 
                black + perc1519 | year_fixed + statefip | 0 | 0, data=texas)
 
+stargazer(fe_lm, type = 'text',
+          covariate.labels = "Prison capacity expansion",
+          omit = c("alcohol", "aidscapita", "income", "ur", "poverty",
+                   "black", "perc1519"),
+          dep.var.labels = "Black Male Prisoners",
+            add.lines = list(c("State Fixed effects", "Yes"),
+                           c("Year Fixed effects", "Yes")),
+          omit.stat = "ser")
+
+
+
 texas = texas %>%
   mutate(time_til = ifelse(statefip == 48, year - 1993, 0),
     lead1 = case_when(time_til == -1 ~ 1, TRUE ~ 0),
@@ -87,12 +98,10 @@ f_test = linearHypothesis(fe_leads, c("lead1 = lead2",
 
 stargazer(f_test, flip = TRUE, type = 'text', summary.stat = c("mean"))
 
-### ADAPT TO THIS SCRIPT
-# stargazer(fe_simple_asmrh, fe_trend_asmrh, fe_simple_asmrs, fe_trend_asmrs,
-#           covariate.labels = "Unilateral Divorce Law",
-#           dep.var.labels = c("Homicide Mortality", "Suicide Mortality"),
-#           omit.stat = c("ser","rsq", "f"),
-#           add.lines = list(c("State Fixed effects", "Yes", "Yes", "Yes", "Yes"),
-#                            c("Year Fixed effects", "Yes", "Yes", "Yes", "Yes"),
-#                            c("State Specific Time Trend", "", "Yes", "", "Yes")),
-#           notes = "Standard errors clustered by State")
+install.packages("dummies")
+library(dummies)
+
+texas_dummies <- dummy.data.frame(texas, names = c("state") , sep = ".")
+
+texas$trend = texas$year - 1985
+
