@@ -83,8 +83,6 @@ number of inmates allowed per cells. Given this constraint, state
 legislators approved a billion dollar prison construction project that
 ended up doubling the state’s capacity within 3 years.
 
-![](https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-graph1.png)
-
 Cunningham (2020) argues that the nature of this expansion allows us to
 use it as a natural experiment to estimate the effect of prison
 expansion on incarceration. He uses the synthetic control method to
@@ -143,6 +141,7 @@ associated with an increase of 28,454.82 black male prisoners, holding
 all else fixed.
 
     ## 
+    ## Table 2: The result of diff-in-diff
     ## =====================================================
     ##                               Dependent variable:    
     ##                           ---------------------------
@@ -161,14 +160,14 @@ all else fixed.
     ## Note:                     *p<0.1; **p<0.05; ***p<0.01
 
 When decomposing the effect in each year, we get the point estimates
-shown in the figure below. The coefficients capture how the treatment
-group differs from the control group when controlling for multiple
-factors and when considering state and year fixed effects. It also
-allows us the test the plausibility of parallel trends in the
-pre-treatment period. As we are including controls and fixed effects,
-there should be less to be explained by the coefficients to the left of
-the grey vertical line since the only difference should be the treatment
-itself, and it didn’t occur in years prior to the intervention.
+shown in Figure 1. The coefficients capture how the treatment group
+differs from the control group when controlling for multiple factors and
+when considering state and year fixed effects. It also allows us the
+test the plausibility of parallel trends in the pre-treatment period. As
+we are including controls and fixed effects, there should be less to be
+explained by the coefficients to the left of the grey vertical line
+since the only difference should be the treatment itself, and it didn’t
+occur in years prior to the intervention.
 
 ![](Final_rmd_files/figure-markdown_strict/4.2.3-1.png)
 
@@ -179,6 +178,7 @@ the parallel trends assumption doesn’t hold even in the pre-treatment
 period, indicating the necessity of exploring different methods.
 
     ## 
+    ## Table 3: The test of joint significance
     ## ==========================================
     ## Statistic Res.Df   Df   Chisq  Pr(> Chisq)
     ## ------------------------------------------
@@ -195,10 +195,7 @@ respectively and tested their performances by K-fold validation.
 First, we fit a lasso regression. From the baseline model we used in
 diff-in-diff analysis, we added one more variable - ‘crack’, hoping it
 can enhance our model’s predictive power, and considered all possible
-interactions. Running the lasso regression model, the path plot is shown
-on \[Graph 2\].
-
-![](Final_rmd_files/figure-markdown_strict/4.3.2-1.png)
+interactions.
 
 As a result, we obtained a model with 181 variables with an intercept.
 Then we did K-fold cross validation to check RMSE when K is 10. We used
@@ -210,18 +207,18 @@ the model estimate the change of black male prisoners which is not
 affected by the policy implementation.\`
 
 When we calculate RMSE for the backward selection model, it turned out
-to be 408.55.
+to be 408.35.
 
 ### RandomForest
 
 After this, we fit a RandomForest model and also did K-fold cross
 validation with the same baseline model we used in our lasso regression
-above. We started with 200 trees and as \[Graph 3\] shows 200 is enough
-to reduce our errors.
+above. We started with 200 trees and as Figure 2 shows 200 is enough to
+reduce our errors.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.4-1.png)
 
-The K-fold validation result shows that the RMSE is 1610.71 which is
+The K-fold validation result shows that the RMSE is 1780.29 which is
 about 4 times larger than the RMSE of lasso regression.
 
 ### Boosting
@@ -229,33 +226,33 @@ about 4 times larger than the RMSE of lasso regression.
 Lastly, we used a boosting model with the same baseline model and did
 K-fold validation as we did above.
 
-The result of our K-fold cross validation shows that the RMSE is 818.11
+The result of our K-fold cross validation shows that the RMSE is 879.39
 which is lower than the RandomForest model but still higher than the
 lasso regression. \[Table 3\] shows that the lasso regression has the
 best predictive power among all the models that we tested.
+
+    # Table 4: RMSE results for each model
 
     ## 
     ## 
     ## +-----------+--------+--------------+----------+
     ## | **Model** | Lasso  | Randomforest | Boosting |
     ## +-----------+--------+--------------+----------+
-    ## | **RMSE**  | 408.55 |   1610.71    |  818.11  |
+    ## | **RMSE**  | 408.35 |   1780.29    |  879.39  |
     ## +-----------+--------+--------------+----------+
-    ## 
-    ## Table: Table 2: RMSE Results for each model
 
 ### Comparing the best model’s predictions with the observed data
 
 Since we have assessed our best predictive model, now we can compare its
 predictions with the real data in our whole data set. We can see how our
-prediction goes along with the real data in \[Graph 3\]. It shows the
+prediction goes along with the real data in Figure 3. It shows the
 change of black male incarceration in the treated state, Texas, with 5
 randomly chosen states.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.8-1.png)
 
-In \[Graph 3\], we can see two interesting findings. One is that Texas
-is showing clearly different movement from our predicted trend after the
+In Figure 3, we can see two interesting findings. One is that Texas is
+showing clearly different movement from our predicted trend after the
 treatment in 1993. The other is that Our prediction from the lasso model
 fits very well on real data of controlled states.
 

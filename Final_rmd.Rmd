@@ -47,8 +47,6 @@ library(pander)
 texas = read.csv("https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/texas.csv")
 
 table1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-table1.png'
-
-graph1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-graph1.png'
 ```
 
 Assessing policy effects and making predictions based on it has always been a key part of quantitative economics. Empirical economists are very often interested in estimating the impact of certain events or policies on a particular outcome. Wooldridge (2013) describes the effectiveness applications of Differences-in-Differences methodology when the data arise from a natural experiment. This kind of experiment occurs when an exogenous event changes the environment in which individuals operate, and require observations of both treatment and control group before and after the change.
@@ -74,10 +72,6 @@ In order to do that, we analyzed the application of a set of predictive models s
 ### Research topic brief summary
 
 During the 1980s, the state of Texas lost a civil action lawsuit where a prisoner argued that the state Department of Corrections was engaging in unconstitutional practices regarding prisoners conditions. The court ruled in favor of the prisoner, and forced the state to  pursue a series of settlements. Among other orders, the court placed constraints on the number of inmates allowed per cells. Given this constraint, state legislators approved a billion dollar prison construction project that ended up doubling the state’s capacity within 3 years.
-
-```{r 4.1.2, echo= FALSE, warning = FALSE}
-include_graphics(graph1_url)
-```
 
 Cunningham (2020) argues that the nature of this expansion allows us to use it as a natural experiment to estimate the effect of prison expansion on incarceration. He uses the synthetic control method to predict counterfactuals as in Abadie et al. (2010) by searching for the set of weights that generate the best fitting convex combination of the control units, being the best the one that minimizes root mean square error in the pre-treatment period.
 
@@ -120,10 +114,10 @@ stargazer(fe_lm, type = 'text',
           dep.var.labels = "Black Male Prisoners",
             add.lines = list(c("State Fixed effects", "Yes"),
                            c("Year Fixed effects", "Yes")),
-          omit.stat = "ser")
+          omit.stat = "ser", title = "Table 2: The result of diff-in-diff")
 ```
 
-When decomposing the effect in each year, we get the point estimates shown in the figure below. The coefficients capture how the treatment group differs from the control group when controlling for multiple factors and when considering state and year fixed effects. It also allows us the test the plausibility of parallel trends in the pre-treatment period. As we are including controls and fixed effects, there should be less to be explained by the coefficients to the left of the grey vertical line since the only difference should be the treatment itself, and it didn't occur in years prior to the intervention.
+When decomposing the effect in each year, we get the point estimates shown in Figure 1. The coefficients capture how the treatment group differs from the control group when controlling for multiple factors and when considering state and year fixed effects. It also allows us the test the plausibility of parallel trends in the pre-treatment period. As we are including controls and fixed effects, there should be less to be explained by the coefficients to the left of the grey vertical line since the only difference should be the treatment itself, and it didn't occur in years prior to the intervention.
 
 ```{r 4.2.3, echo=FALSE, warning=FALSE}
 texas = texas %>%
@@ -175,8 +169,9 @@ leadslags_bmprison %>%
   geom_vline(xintercept = 0, color = "dark grey", size = 0.8) +
   geom_hline(yintercept = 28454.8160032, color = "red", size = 1.2) +
   scale_x_continuous(breaks= c(-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7)) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank()) + ggtitle("Figure 1: The effect decomposition")
 ```
+
 
 A test of joint significance of the leads coefficients, as in Kearney and Levine (2015), reject the null hypothesis that they are jointly equal to zero (p-value = 0.006). Therefore, it provides evidence that the parallel trends assumption doesn't hold even in the pre-treatment period, indicating the necessity of exploring different methods.
 
@@ -189,14 +184,14 @@ f_test = linearHypothesis(fe_leads, c("lead1 = lead2",
                                                 "lead6 = lead7",
                                                 "lead7 = 0"))
 
-stargazer(f_test, flip = TRUE, type = 'text', summary.stat = c("mean"))
+stargazer(f_test, flip = TRUE, type = 'text', summary.stat = c("mean"), title = "Table 3: The test of joint significance")
 ```
 
 Therefore, we tested 3 alternative models to find out the best predictive one other than assuming the parallel trends. As mentioned before, we used Lasso regression, RandomForest, and Boosting model respectively and tested their performances by K-fold validation.
 
 ### Lasso Regression
 
-First, we fit a lasso regression. From the baseline model we used in diff-in-diff analysis, we added one more variable - 'crack', hoping it can enhance our model's predictive power, and considered all possible interactions. Running the lasso regression model, the path plot is shown on [Graph 2].
+First, we fit a lasso regression. From the baseline model we used in diff-in-diff analysis, we added one more variable - 'crack', hoping it can enhance our model's predictive power, and considered all possible interactions. 
 
 ```{r 4.3.2, echo=FALSE, warning=FALSE}
 texas_train = subset(texas, post == 0)
@@ -206,7 +201,6 @@ texas_lasso$year_fixed = texas_train$year_fixed
 texas_x = sparse.model.matrix(bmprison ~ (crack + alcohol + income + ur + poverty + black  + perc1519 + aidscapita + year_fixed + statefip)^2, data=texas_lasso)[, -1]
 texas_y = texas_lasso$bmprison
 reg_lasso = gamlr(texas_x, texas_y)
-plot(reg_lasso, main = "[Graph 2] Lasso Model")
 ```
 
 As a result, we obtained a model with 181 variables with an intercept. Then we did K-fold cross validation to check RMSE when K is 10. We used a train-test split and repeated the step from 1 to K repetitions by running a loop. Our train set and test set were both subsets of our whole dataset except the observations from the state of Texas after 1993, which is what we want to predict. By doing it, we can measure how the model estimate the change of black male prisoners which is not affected by the policy implementation.`
@@ -252,7 +246,7 @@ When we calculate RMSE for the backward selection model, it turned out to be `r 
 
 ### RandomForest
 
-After this, we fit a RandomForest model and also did K-fold cross validation with the same baseline model we used in our lasso regression above. We started with 200 trees and as [Graph 3] shows 200 is enough to reduce our errors.
+After this, we fit a RandomForest model and also did K-fold cross validation with the same baseline model we used in our lasso regression above. We started with 200 trees and as Figure 2 shows 200 is enough to reduce our errors.
 
 ```{r 4.3.4, echo=FALSE, warning=FALSE}
 err_save2 = rep(0, K)
@@ -264,7 +258,7 @@ for(i in 1:K){
   yhat_test2 = predict(model2_train, newdata = texas_train[-train_set2,])
   err_save2[i] = mean((y_test2-yhat_test2)^2)
 }
-plot(model2_train, main="[Graph 3] Number of trees vs error in Randomforest")
+plot(model2_train, main="Figure 2: Number of trees vs error in Randomforest")
 ```
 ```{r 4.3.5, echo=FALSE, include=FALSE}
 sqrt(mean(err_save2))
@@ -292,17 +286,21 @@ sqrt(mean(err_save3))
 
 The result of our K-fold cross validation shows that the RMSE is `r round(sqrt(mean(err_save3)),2)` which is lower than the RandomForest model but still higher than the lasso regression. [Table 3] shows that the lasso regression has the best predictive power among all the models that we tested. 
 
+```{r 4.3.6.1, echo=TRUE}
+# Table 4: RMSE results for each model
+```
+
 ```{r 4.3.7, echo=FALSE, warning=FALSE}
 Model <- c('Lasso','Randomforest','Boosting')
 RMSE <- c(round(sqrt(mean(err_save_lasso)),2), round(sqrt(mean(err_save2)),2),round(sqrt(mean(err_save3)),2))
 RMSE_result = data.frame(Model,RMSE)
 RMSE_result = t(RMSE_result)
-pandoc.table(RMSE_result, caption="Table 2: RMSE Results for each model", style="grid")
+pandoc.table(RMSE_result, style="grid")
 ```
 
 ### Comparing the best model's predictions with the observed data
 
-Since we have assessed our best predictive model, now we can compare its predictions with the real data in our whole data set. We can see how our prediction goes along with the real data in [Graph 3]. It shows the change of black male incarceration in the treated state, Texas, with 5 randomly chosen states.
+Since we have assessed our best predictive model, now we can compare its predictions with the real data in our whole data set. We can see how our prediction goes along with the real data in Figure 3. It shows the change of black male incarceration in the treated state, Texas, with 5 randomly chosen states.
 
 ```{r 4.3.8, echo=FALSE, warning=FALSE}
 texas_general <- dummy.data.frame(texas, names = c("statefip", "year_fixed"))
@@ -320,7 +318,7 @@ subset(texas_general, statefip == 48 | statefip == random_state[1] |
   ggplot(aes(x = year, colour=state)) +
   geom_line(aes(y = bmprison)) +
   geom_line(aes(y = yhat), linetype = "dashed") +
-  theme_bw() + ggtitle("[Graph 3] Prediction vs Real data by states") +
+  theme_bw() + ggtitle("Figure 3: Prediction vs Real data by states") +
   xlab("Year") +
   ylab("Black Male Incarceration") +
   geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
@@ -328,7 +326,7 @@ subset(texas_general, statefip == 48 | statefip == random_state[1] |
 
 ```
 
-In [Graph 3], we can see two interesting findings. One is that Texas is showing clearly different movement from our predicted trend after the treatment in 1993. The other is that Our prediction from the lasso model fits very well on real data of controlled states.  
+In Figure 3, we can see two interesting findings. One is that Texas is showing clearly different movement from our predicted trend after the treatment in 1993. The other is that Our prediction from the lasso model fits very well on real data of controlled states.  
 
 For inference purposes, it is recommended to estimate a confidence interval rather than showing the point estimate only. Therefore, we used a bootstrap to calculate the standard deviation of the parameter's resampling distribution. The results are ADD THE RESULTS AND PLOT
 
