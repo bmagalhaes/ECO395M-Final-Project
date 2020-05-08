@@ -1,10 +1,11 @@
 ---
 title: "Final Project"
 author: "Bernardo Magalhaes, Adhish Luitel, Ji Heon Shim"
-date: "`r format(Sys.Date())`"
-output: md_document:
+date: "`r format(Sys.Date())`" 
+always_allow_html: true
+output:
+    md_document:
     variant: markdown_github
-always_allow_html: yes
 ---
 
 # ECO 395M: Final Project
@@ -55,6 +56,10 @@ Assessing policy effects and making predictions based on it has always been a ke
 This methodology is particularly powerful for inferring causality since it neutralizes unobserved, but fixed, omitted variables (Angrist and Pischke, 2018). Nonetheless, it relies on a quite strong – and unfortunately not testable – assumption that the outcome in the multiple individuals/firms/states included in the analysis share the same trend over time, which is called parallel trends assumption.
 
 The table below illustrates a simple version of the Diff-in-Diff method and why this assumption is required. By decreasing the outcome after treatment from the outcome before treatment for a treated state, the difference (D1) is going to be the effect caused by the treatment (E) plus a trend (T). This step neutralizes unobserved factors of a particular state. For a state that wasn't treated, the difference (D1) before and after treatment is the trend (T) only. So, if we assume that T is the same for both states, we can decrease T, that was measured from the control state, from T + E in order to isolate the causal effect E.
+
+```{r 4.1.0, echo=TRUE}
+# Table 1: The basic concept of diff-in-diff
+```
 
 ```{r 4.1.1, echo= FALSE, warning = FALSE}
 include_graphics(table1_url)

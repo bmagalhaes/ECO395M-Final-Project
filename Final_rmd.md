@@ -1,6 +1,8 @@
-\#ECO 395M: Final Project \#\# Using Machine Learning literature to
-predict counterfactuals: an alternative method to
-Differences-in-Differences estimation
+ECO 395M: Final Project
+=======================
+
+Using Machine Learning literature to predict counterfactuals: an alternative method to Differences-in-Differences estimation
+----------------------------------------------------------------------------------------------------------------------------
 
 Bernardo Arreal Magalhaes - UTEID ba25727
 
@@ -52,6 +54,8 @@ particular state. For a state that wasn’t treated, the difference (D1)
 before and after treatment is the trend (T) only. So, if we assume that
 T is the same for both states, we can decrease T, that was measured from
 the control state, from T + E in order to isolate the causal effect E.
+
+    # Table 1: The basic concept of diff-in-diff
 
 ![](https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-table1.png)
 
@@ -206,7 +210,7 @@ the model estimate the change of black male prisoners which is not
 affected by the policy implementation.\`
 
 When we calculate RMSE for the backward selection model, it turned out
-to be 408.34.
+to be 408.55.
 
 ### RandomForest
 
@@ -217,7 +221,7 @@ to reduce our errors.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.4-1.png)
 
-The K-fold validation result shows that the RMSE is 1671.4 which is
+The K-fold validation result shows that the RMSE is 1610.71 which is
 about 4 times larger than the RMSE of lasso regression.
 
 ### Boosting
@@ -225,17 +229,18 @@ about 4 times larger than the RMSE of lasso regression.
 Lastly, we used a boosting model with the same baseline model and did
 K-fold validation as we did above.
 
-The result of our K-fold cross validation shows that the RMSE is 823.23
+The result of our K-fold cross validation shows that the RMSE is 818.11
 which is lower than the RandomForest model but still higher than the
 lasso regression. \[Table 3\] shows that the lasso regression has the
 best predictive power among all the models that we tested.
 
     ## 
-    ## ----------- -------- -------------- ----------
-    ##  **Model**   Lasso    Randomforest   Boosting 
     ## 
-    ##  **RMSE**    408.34     1671.40       823.23  
-    ## ----------- -------- -------------- ----------
+    ## +-----------+--------+--------------+----------+
+    ## | **Model** | Lasso  | Randomforest | Boosting |
+    ## +-----------+--------+--------------+----------+
+    ## | **RMSE**  | 408.55 |   1610.71    |  818.11  |
+    ## +-----------+--------+--------------+----------+
     ## 
     ## Table: Table 2: RMSE Results for each model
 
