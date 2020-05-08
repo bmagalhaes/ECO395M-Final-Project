@@ -40,7 +40,6 @@ library(dummies)
 library(gbm)
 library(gamlr)
 library(randomForest)
-library(kableExtra)
 library(mosaic)
 library(pander)
 
@@ -319,11 +318,11 @@ subset(texas_general, statefip == 48 | statefip == random_state[1] |
   ggplot(aes(x = year, colour=state)) +
   geom_line(aes(y = bmprison)) +
   geom_line(aes(y = yhat), linetype = "dashed") +
-  theme_bw() + ggtitle("Figure 3: Prediction vs Real data by states") +
+  theme_bw() + ggtitle("Figure 3: Prediction vs Real data") +
   xlab("Year") +
   ylab("Black Male Incarceration") +
   geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(), plot.title=element_text(hjust=0.5))
 
 ```
 
@@ -391,7 +390,7 @@ subset(texas_general, statefip == 48) %>%
   geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
   geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
   geom_ribbon(alpha = 0.4, fill = "light blue") +
-  ggtitle("Figure 4") +
+  ggtitle("Figure 4: Estimating a confidence interval") +
   theme_bw() +
   xlab("Year") +
   ylab("Black Male Incarceration") +
