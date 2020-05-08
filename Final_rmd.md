@@ -207,7 +207,7 @@ the model estimate the change of black male prisoners which is not
 affected by the policy implementation.\`
 
 When we calculate RMSE for the backward selection model, it turned out
-to be 408.54.
+to be 408.36.
 
 ### RandomForest
 
@@ -218,7 +218,7 @@ reduce our errors.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.4-1.png)
 
-The K-fold validation result shows that the RMSE is 1643.03 which is
+The K-fold validation result shows that the RMSE is 1693.5 which is
 about 4 times larger than the RMSE of lasso regression.
 
 ### Boosting
@@ -226,7 +226,7 @@ about 4 times larger than the RMSE of lasso regression.
 Lastly, we used a boosting model with the same baseline model and did
 K-fold validation as we did above.
 
-The result of our K-fold cross validation shows that the RMSE is 863.4
+The result of our K-fold cross validation shows that the RMSE is 834.31
 which is lower than the RandomForest model but still higher than the
 lasso regression. \[Table 3\] shows that the lasso regression has the
 best predictive power among all the models that we tested.
@@ -238,7 +238,7 @@ best predictive power among all the models that we tested.
     ## +-----------+--------+--------------+----------+
     ## | **Model** | Lasso  | Randomforest | Boosting |
     ## +-----------+--------+--------------+----------+
-    ## | **RMSE**  | 408.54 |   1643.03    |  863.40  |
+    ## | **RMSE**  | 408.36 |   1693.50    |  834.31  |
     ## +-----------+--------+--------------+----------+
 
 ### Comparing the best model's predictions with the observed data
@@ -259,31 +259,39 @@ fits very well on real data of controlled states.
 For inference purposes, it is recommended to estimate a confidence
 interval rather than showing the point estimate only. Therefore, we used
 a bootstrap to calculate the standard deviation of the parameter's
-resampling distribution. The results are ADD THE RESULTS AND PLOT
+resampling distribution, and illustrated the results on figure 4.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.10-1.png)
 
+The average treatment effect calculated by taking the average of the
+simple difference of outcomes between the observed data and the
+predictions yielded by our most accurate model was:
+
     ## [1] 25254.73
+
+When comparing it to the Diff-in-Diff estimator, we can observe a
+decrease of approximately 12% on the magnitude of the effect.
 
 Conclusion
 ----------
 
 The analysis showed that alternative supervised learning methods can
-play a big role in predicting counterfactuals when there are reasons to
-believe that the traditional assumptions don't hold. It is important to
-notice that it is upon to the researcher's discretion how to do it in
-practice, and it might open up space for "p-hacking" when moving away
-from the best practices. In that sense, peer review/validation is
-crucial to ensure that the predictions are being yielded by models that
-minimize out of sample root mean square error, and randomness is
-fundamental to guarantee that the results aren't being conveniently
-tampered.
+play a big role in predicting counterfactuals either when there are
+reasons to believe that the traditional assumptions don't hold, or to
+corroborate the assumptions as well. It is important to notice that it
+is upon to the researcher's discretion how to do it in practice, and it
+might open up space for "p-hacking" when moving away from the best
+practices. In that sense, peer review/validation is crucial to ensure
+that the predictions are being yielded by models that minimize out of
+sample root mean square error, and randomness is fundamental to
+guarantee that the results aren't being conveniently tampered.
 
-Our dataset has only 816 observations due to the limitation of number of
-states and time span. We could have increased our model's predictive
-power if we had had more observations, however, our model fits very well
-on real data of contolled states suggesting the possibility of
-predicting counterfactuals.
+Given that our dataset was consisted of only 816 observations and a
+limitted amount of covariates, our best judgement is that the
+alternative model yielded satisfactory results. We could have increased
+our model's predictive power if we had had more observations, however,
+our model fits very well on real data of contolled states suggesting the
+possibility of predicting counterfactuals.
 
 References
 ----------

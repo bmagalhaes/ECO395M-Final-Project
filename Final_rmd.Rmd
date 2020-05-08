@@ -329,7 +329,7 @@ subset(texas_general, statefip == 48 | statefip == random_state[1] |
 
 In Figure 3, we can see two interesting findings. One is that Texas is showing clearly different movement from our predicted trend after the treatment in 1993. The other is that Our prediction from the lasso model fits very well on real data of controlled states.  
 
-For inference purposes, it is recommended to estimate a confidence interval rather than showing the point estimate only. Therefore, we used a bootstrap to calculate the standard deviation of the parameter's resampling distribution. The results are ADD THE RESULTS AND PLOT
+For inference purposes, it is recommended to estimate a confidence interval rather than showing the point estimate only. Therefore, we used a bootstrap to calculate the standard deviation of the parameter's resampling distribution, and illustrated the results on figure 4.
 
 ```{r 4.3.9, echo=FALSE, include=FALSE, cache=TRUE}
 texas_lasso_inf = subset(texas, post == 0)
@@ -384,99 +384,23 @@ texas_general$yhat_se_inf = texas_pred_inf$se
 ```
 
 ```{r 4.3.10, echo=FALSE}
-plot_texas = subset(texas_general, statefip == 48) %>%
+subset(texas_general, statefip == 48) %>%
   ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
   geom_line(aes(y = bmprison)) +
   geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
   geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
   geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
   geom_ribbon(alpha = 0.4, fill = "light blue") +
-  ggtitle(texas_general$state[texas_general$statefip == 48]) +
+  ggtitle("Figure 4") +
   theme_bw() +
   xlab("Year") +
   ylab("Black Male Incarceration") +
   geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
         plot.title = element_text(hjust = 0.5))
-
-plot_1 = subset(texas_general, statefip == random_state[1]) %>%
-  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
-  geom_line(aes(y = bmprison)) +
-  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
-  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
-  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
-  geom_ribbon(alpha = 0.4, fill = "light blue") +
-  ggtitle(texas_general$state[texas_general$statefip == random_state[1]]) +
-  theme_bw() +
-  xlab("Year") +
-  ylab("Black Male Incarceration") +
-  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-
-plot_2 = subset(texas_general, statefip == random_state[2]) %>%
-  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
-  geom_line(aes(y = bmprison)) +
-  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
-  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
-  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
-  geom_ribbon(alpha = 0.4, fill = "light blue") +
-  ggtitle(texas_general$state[texas_general$statefip == random_state[2]]) +
-  theme_bw() +
-  xlab("Year") +
-  ylab("Black Male Incarceration") +
-  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-
-plot_3 = subset(texas_general, statefip == random_state[3]) %>%
-  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
-  geom_line(aes(y = bmprison)) +
-  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
-  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
-  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
-  geom_ribbon(alpha = 0.4, fill = "light blue") +
-  ggtitle(texas_general$state[texas_general$statefip == random_state[3]]) +
-  theme_bw() +
-  xlab("Year") +
-  ylab("Black Male Incarceration") +
-  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-
-plot_4 = subset(texas_general, statefip == random_state[4]) %>%
-  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
-  geom_line(aes(y = bmprison)) +
-  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
-  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
-  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
-  geom_ribbon(alpha = 0.4, fill = "light blue") +
-  ggtitle(texas_general$state[texas_general$statefip == random_state[4]]) +
-  theme_bw() +
-  xlab("Year") +
-  ylab("Black Male Incarceration") +
-  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-
-plot_5 = subset(texas_general, statefip == random_state[5]) %>%
-  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
-  geom_line(aes(y = bmprison)) +
-  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
-  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
-  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
-  geom_ribbon(alpha = 0.4, fill = "light blue") +
-  ggtitle(texas_general$state[texas_general$statefip == random_state[5]]) +
-  theme_bw() +
-  xlab("Year") +
-  ylab("Black Male Incarceration") +
-  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
-  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
-        plot.title = element_text(hjust = 0.5))
-
-panel_1 = grid.arrange(layout_matrix = cbind(c(1,2,3),c(4,5,6)),
-                       plot_texas, plot_1, plot_2, plot_3,plot_4, plot_5, ncol=3)
 ```
+
+The average treatment effect calculated by taking the average of the simple difference of outcomes between the observed data and the predictions yielded by our most accurate model was:
 
 ```{r 4.3.11, echo=FALSE}
 texas_post = subset(texas_general, post == 1)
@@ -484,11 +408,13 @@ texas_post$dhat = (texas_post$bmprison - texas_post$yhat_mean_inf)
 mean(texas_post$dhat)
 ```
 
+When comparing it to the Diff-in-Diff estimator, we can observe a decrease of approximately 12% on the magnitude of the effect.
+
 ## Conclusion
 
-The analysis showed that alternative supervised learning methods can play a big role in predicting counterfactuals when there are reasons to believe that the traditional assumptions don't hold. It is important to notice that it is upon to the researcher's discretion how to do it in practice, and it might open up space for "p-hacking" when moving away from the best practices. In that sense, peer review/validation is crucial to ensure that the predictions are being yielded by models that minimize out of sample root mean square error, and randomness is fundamental to guarantee that the results aren't being conveniently tampered.  
+The analysis showed that alternative supervised learning methods can play a big role in predicting counterfactuals either when there are reasons to believe that the traditional assumptions don't hold, or to corroborate the assumptions as well. It is important to notice that it is upon to the researcher's discretion how to do it in practice, and it might open up space for "p-hacking" when moving away from the best practices. In that sense, peer review/validation is crucial to ensure that the predictions are being yielded by models that minimize out of sample root mean square error, and randomness is fundamental to guarantee that the results aren't being conveniently tampered.  
 
-Our dataset has only 816 observations due to the limitation of number of states and time span. We could have increased our model's predictive power if we had had more observations, however, our model fits very well on real data of contolled states suggesting the possibility of predicting counterfactuals.
+Given that our dataset was consisted of only 816 observations and a limitted amount of covariates, our best judgement is that the alternative model yielded satisfactory results. We could have increased our model's predictive power if we had had more observations, however, our model fits very well on real data of contolled states suggesting the possibility of predicting counterfactuals.
 
 ## References
 
