@@ -8,6 +8,21 @@ Adhish Luitel - UTEID al49674
 
 Ji Heon Shim - UTEID js93996
 
+Abstract
+--------
+
+In this project, we looked into the effect of prison expansion across
+various prisons in the state of Texas. To assess the causal effect of
+increased prison capacity on black male population incarceration, we
+first used the difference-in-difference estimator to see the validity of
+the parallel trends assumption. Then, in order to overcome the
+limitations of difference in difference, we explored three alternative
+predictive analysis models, i.e. Lasso regression, Random Forests, and
+Boosting model respectively to test their performances via K-fold
+validation to determine the most accurate model. As a result, our model
+fits very well on real data suggesting the high possibility of
+predicting counterfactuals.
+
 Introduction
 ------------
 
@@ -94,13 +109,20 @@ results. Bearing the characteristics of our dataset in mind, we decided
 to conduct iterative model selection and utilize regularization based
 methods to identify the best working model.
 
-Our dataset is consisted of state level annual observations of the
-following variables: number of black male prisoners (bmprison), alcohol
-consumption per capita (alcohol), AIDS mortality (aidscapita), average
-household income (income), unemployment rate (ur), share of the
+This dataset contains observations of various prisons across all the
+states in the country from 1985 to 2000. So the variable year is
+continuous over the 15 year period. With the races primarily divided
+into black and white, this dataset deals with various factors that could
+possibly contribute to crime and the share of African American
+population in the state of Texas. In light of this, variables like
+alcohol consumption per capita (alcohol), aids mortality (aidscapita),
+average household income (income), unemployment rate (ur), share of the
 population in poverty (poverty), share of the population which is
-African American (black) and share of the population which is 15 to 19
-years old (perc1519).
+African American (black) and the share of the population which is 15 to
+19 years old (perc1519) were considered. Since we were looking at
+increased incarceration among the black male population with prison
+capacity increase, number of black male prisoners (bmprison) was our
+dependent variable.
 
 RESULTS
 -------
@@ -184,7 +206,7 @@ the model estimate the change of black male prisoners which is not
 affected by the policy implementation.\`
 
 When we calculate RMSE for the backward selection model, it turned out
-to be 408.48.
+to be 408.39.
 
 ### RandomForest
 
@@ -195,7 +217,7 @@ to reduce our errors.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.4-1.png)
 
-The K-fold validation result shows that the RMSE is 1711.03 which is
+The K-fold validation result shows that the RMSE is 1696.59 which is
 about 4 times larger than the RMSE of lasso regression.
 
 ### Boosting
@@ -203,7 +225,7 @@ about 4 times larger than the RMSE of lasso regression.
 Lastly, we used a boosting model with the same baseline model and did
 K-fold validation as we did above.
 
-The result of our K-fold cross validation shows that the RMSE is 807.26
+The result of our K-fold cross validation shows that the RMSE is 867.87
 which is lower than the RandomForest model but still higher than the
 lasso regression. \[Table 3\] shows that the lasso regression has the
 best predictive power among all the models that we tested.
@@ -232,13 +254,13 @@ Boosting
 RMSE
 </td>
 <td style="text-align:left;">
-408.48
+408.39
 </td>
 <td style="text-align:left;">
-1711.03
+1696.59
 </td>
 <td style="text-align:left;">
-807.26
+867.87
 </td>
 </tr>
 </tbody>
@@ -276,11 +298,15 @@ play a big role in predicting counterfactuals when there are reasons to
 believe that the traditional assumptions don’t hold. It is important to
 notice that it is upon to the researcher’s discretion how to do it in
 practice, and it might open up space for “p-hacking” when moving away
-from the best practices. In that sense, peer review/validation is is
+from the best practices. In that sense, peer review/validation is
 crucial to ensure that the predictions are being yielded by models that
 minimize out of sample root mean square error, and randomness is
 fundamental to guarantee that the results aren’t being conveniently
-tampered.
+tampered. Our dataset has only 816 observations due to the limitation of
+number of states and time span. We could have increased our model’s
+predictive power if we had had more observations, however, our model
+fits very well on real data of contolled states suggesting the
+possibility of predicting counterfactuals.
 
 References
 ----------
