@@ -487,6 +487,7 @@ mean(texas_post$dhat)
 ## Conclusion
 
 The analysis showed that alternative supervised learning methods can play a big role in predicting counterfactuals when there are reasons to believe that the traditional assumptions don't hold. It is important to notice that it is upon to the researcher's discretion how to do it in practice, and it might open up space for "p-hacking" when moving away from the best practices. In that sense, peer review/validation is crucial to ensure that the predictions are being yielded by models that minimize out of sample root mean square error, and randomness is fundamental to guarantee that the results aren't being conveniently tampered.  
+
 Our dataset has only 816 observations due to the limitation of number of states and time span. We could have increased our model's predictive power if we had had more observations, however, our model fits very well on real data of contolled states suggesting the possibility of predicting counterfactuals.
 
 ## References

@@ -207,7 +207,7 @@ the model estimate the change of black male prisoners which is not
 affected by the policy implementation.\`
 
 When we calculate RMSE for the backward selection model, it turned out
-to be 408.43.
+to be 408.54.
 
 ### RandomForest
 
@@ -218,7 +218,7 @@ reduce our errors.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.4-1.png)
 
-The K-fold validation result shows that the RMSE is 1752.99 which is
+The K-fold validation result shows that the RMSE is 1643.03 which is
 about 4 times larger than the RMSE of lasso regression.
 
 ### Boosting
@@ -226,7 +226,7 @@ about 4 times larger than the RMSE of lasso regression.
 Lastly, we used a boosting model with the same baseline model and did
 K-fold validation as we did above.
 
-The result of our K-fold cross validation shows that the RMSE is 808.5
+The result of our K-fold cross validation shows that the RMSE is 863.4
 which is lower than the RandomForest model but still higher than the
 lasso regression. \[Table 3\] shows that the lasso regression has the
 best predictive power among all the models that we tested.
@@ -238,7 +238,7 @@ best predictive power among all the models that we tested.
     ## +-----------+--------+--------------+----------+
     ## | **Model** | Lasso  | Randomforest | Boosting |
     ## +-----------+--------+--------------+----------+
-    ## | **RMSE**  | 408.43 |   1752.99    |  808.50  |
+    ## | **RMSE**  | 408.54 |   1643.03    |  863.40  |
     ## +-----------+--------+--------------+----------+
 
 ### Comparing the best model's predictions with the observed data
@@ -277,7 +277,8 @@ from the best practices. In that sense, peer review/validation is
 crucial to ensure that the predictions are being yielded by models that
 minimize out of sample root mean square error, and randomness is
 fundamental to guarantee that the results aren't being conveniently
-tampered.  
+tampered.
+
 Our dataset has only 816 observations due to the limitation of number of
 states and time span. We could have increased our model's predictive
 power if we had had more observations, however, our model fits very well
