@@ -1,10 +1,4 @@
 base
-methods
-datasets
-utils
-grDevices
-graphics
-stats
 knitr
 tidyverse
 ggplot2
@@ -23,7 +17,6 @@ Matrix
 lfe
 xtable
 tidytable
-grid
 carData
 car
 dummies

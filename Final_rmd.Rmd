@@ -321,7 +321,7 @@ In [Graph 3], we can see two interesting findings. One is that Texas is showing 
 
 For inference purposes, it is recommended to estimate a confidence interval rather than showing the point estimate only. Therefore, we used a bootstrap to calculate the standard deviation of the parameter's resampling distribution. The results are ADD THE RESULTS AND PLOT
 
-```{r 4.3.9, echo=FALSE, cache=TRUE}
+```{r 4.3.9, echo=FALSE, include=FALSE, cache=TRUE}
 texas_lasso_inf = subset(texas, post == 0)
 lasso_aux = texas_lasso_inf
 texas_lasso_inf = dummy.data.frame(texas_lasso_inf, names = c("statefip", "year_fixed"))
@@ -370,6 +370,10 @@ texas_pred_inf$se = apply(texas_pred_inf[,-1001], 1, sd)
 texas_general$yhat_mean_inf = texas_pred_inf$mean
 texas_general$yhat_se_inf = texas_pred_inf$se
 
+
+```
+
+```{r 4.3.10, echo=FALSE}
 plot_texas = subset(texas_general, statefip == 48) %>%
   ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
   geom_line(aes(y = bmprison)) +
@@ -466,7 +470,7 @@ panel_1 = grid.arrange(layout_matrix = cbind(c(1,2,3),c(4,5,6)),
 panel_1 = grid.arrange(plot_texas, plot_2, ncol=2)
 ```
 
-```{r 4.3.10, echo=FALSE}
+```{r 4.3.11, echo=FALSE}
 texas_post = subset(texas_general, post == 1)
 texas_post$dhat = (texas_post$bmprison - texas_post$yhat_mean_inf)
 mean(texas_post$dhat)
