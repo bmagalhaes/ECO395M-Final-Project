@@ -174,9 +174,7 @@ Model <- c('Lasso','Randomforest','Boosting')
 RMSE <- c(round(sqrt(mean(err_save_lasso)),2), round(sqrt(mean(err_save2)),2),round(sqrt(mean(err_save3)),2))
 RMSE_result = data.frame(Model,RMSE)
 RMSE_result = t(RMSE_result)
-[Table 2] RMSE results of each model
 pandoc.table(RMSE_result)
-?pandoc.table
 ##
 
 texas_pred = c(1:nrow(texas))
@@ -208,6 +206,7 @@ subset(texas_general, statefip == 48) %>%
   ylab("Black Male Incarceration") +
   geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
   theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
++ title("abcd")
 
 ### I WILL WORK OUT LATER
 # 
