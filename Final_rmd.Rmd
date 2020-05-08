@@ -1,13 +1,14 @@
 ---
 title: "Final Project"
 author: "Bernardo Magalhaes, Adhish Luitel, Ji Heon Shim"
-date: "`r format(Sys.Date())`" 
-always_allow_html: true
-output:
-    md_document:
+date: "`r format(Sys.Date())`"
+output: md_document:
     variant: markdown_github
+always_allow_html: yes
 ---
-#ECO 395M: Final Project
+
+# ECO 395M: Final Project
+
 ## Using Machine Learning literature to predict counterfactuals: an alternative method to Differences-in-Differences estimation
 
 Bernardo Arreal Magalhaes - UTEID ba25727
@@ -291,7 +292,7 @@ Model <- c('Lasso','Randomforest','Boosting')
 RMSE <- c(round(sqrt(mean(err_save_lasso)),2), round(sqrt(mean(err_save2)),2),round(sqrt(mean(err_save3)),2))
 RMSE_result = data.frame(Model,RMSE)
 RMSE_result = t(RMSE_result)
-pandoc.table(RMSE_result, caption="Table 2: RMSE Results for each model")
+pandoc.table(RMSE_result, caption="Table 2: RMSE Results for each model", style="grid")
 ```
 
 ### Comparing the best model's predictions with the observed data
