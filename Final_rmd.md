@@ -19,11 +19,11 @@ often interested in estimating the impact of certain events or policies
 on a particular outcome. Wooldridge (2013) describes the effectiveness
 applications of Differences-in-Differences methodology when the data
 arise from a natural experiment. This kind of experiment occurs when an
-exogenous event changes the environment in which individuals opperate,
+exogenous event changes the environment in which individuals operate,
 and require observations of both treatment and control group before and
 after the change.
 
-This methodology is particularly powerfull for infering causality since
+This methodology is particularly powerful for inferring causality since
 it neutralizes unobserved, but fixed, omitted variables (Angrist and
 Pischke, 2018). Nonetheless, it relies on a quite strong – and
 unfortunately not testable – assumption that the outcome in the multiple
@@ -76,11 +76,10 @@ set of weights that generate the best fitting convex combination of the
 control units, being the best the one that minimizes root mean square
 error in the pre-treatment period.
 
-His preliminar results indicate that an increase in state prison
-capacity caused an increase in black male incarceration. We used a set
-of alternative methods to estimate the causal effect. Bearing this in
+His preliminary results indicate that an increase in state prison
+capacity caused an increase in black male incarceration. Bearing this in
 mind, we used a set of alternative methods learned in class to estimate
-the these counterfactuals.
+counterfactuals and, therefore, measure the causal effect.
 
 Method
 ------
@@ -97,12 +96,12 @@ results. Bearing the characteristics of our dataset in mind, we decided
 to conduct iterative model selection and utilize regularization based
 methods to identify the best working model.
 
-Our dataset is consisted of state level anual observations of the
+Our dataset is consisted of state level annual observations of the
 following variables: number of black male prisoners (bmprison), alcohol
-consumption per capita (alcohol), aids mortality (aidscapita), average
+consumption per capita (alcohol), AIDS mortality (aidscapita), average
 household income (income), unemployment rate (ur), share of the
 population in poverty (poverty), share of the population which is
-african american (black) and share of the population which is 15 to 19
+African American (black) and share of the population which is 15 to 19
 years old (perc1519).
 
 RESULTS
@@ -182,12 +181,12 @@ Then we did K-fold cross validation to check RMSE when K is 10. We used
 a train-test split and repeated the step from 1 to K repetitions by
 running a loop. Our train set and test set were both subsets of our
 whole dataset except the observations from the state of Texas after
-1993, which is what we wan't to predict. By doing it, we can measure how
+1993, which is what we want to predict. By doing it, we can measure how
 the model estimate the change of black male prisoners which is not
-affected by the policy implementaion.\`
+affected by the policy implementation.\`
 
 When we calculate RMSE for the backward selection model, it turned out
-to be 408.57.
+to be 408.46.
 
 ### RandomForest
 
@@ -198,7 +197,7 @@ to reduce our errors.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.4-1.png)
 
-The K-fold validation result shows that the RMSE is 1652.09 which is
+The K-fold validation result shows that the RMSE is 1666.53 which is
 about 4 times larger than the RMSE of lasso regression.
 
 ### Boosting
@@ -206,7 +205,7 @@ about 4 times larger than the RMSE of lasso regression.
 Lastly, we used a boosting model with the same baseline model and did
 K-fold validation as we did above.
 
-The result of our K-fold cross validation shows that the RMSE is 833.32
+The result of our K-fold cross validation shows that the RMSE is 856.68
 which is lower than the RandomForest model but still higher than the
 lasso regression. \[Table 3\] shows that the lasso regression has the
 best predictive power among all the models that we tested.
@@ -235,13 +234,13 @@ Boosting
 RMSE
 </td>
 <td style="text-align:left;">
-408.57
+408.46
 </td>
 <td style="text-align:left;">
-1652.09
+1666.53
 </td>
 <td style="text-align:left;">
-833.32
+856.68
 </td>
 </tr>
 </tbody>
@@ -256,7 +255,7 @@ randomly chosen states.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.8-1.png)
 
-In \[Graph 3\], we can see two interesting foundings. One is that Texas
+In \[Graph 3\], we can see two interesting findings. One is that Texas
 is showing clearly different movement from our predicted trend after the
 treatment in 1993. The other is that Our prediction from the lasso model
 fits very well on real data of controlled states.
@@ -266,16 +265,32 @@ interval rather than showing the point estimate only. Therefore, we used
 a bootstrap to calculate the standard deviation of the parameter's
 resampling distribution. The results are ADD THE RESULTS AND PLOT
 
-CONCLUSION
+Conclusion
 ----------
 
 The analysis showed that alternative supervised learning methods can
 play a big role in predicting counterfactuals when there are reasons to
 believe that the traditional assumptions don't hold. It is important to
-notice that it is upon to the researcher's discrition how to do it in
+notice that it is upon to the researcher's discretion how to do it in
 practice, and it might open up space for "p-hacking" when moving away
-from the best practices. In that sense, peer review/ validationis is
+from the best practices. In that sense, peer review/validation is is
 crucial to ensure that the predictions are being yielded by models that
 minimize out of sample root mean square error, and randomness is
 fundamental to guarantee that the results aren't being conveniently
 tampered.
+
+References
+----------
+
+Wooldridge, J.M. (2013). Introductory econometrics: A modern approach
+
+Angrist, J and Pischke, J.S. (2018). Mostly Harmless Econometrics
+
+Cunningham, Scott (2020). CAUSAL INFERENCE: THE MIXTAPE
+
+Abadie, A, Diamond, A and Hainmueller, J (2010). Synthetic Control
+Methods for Comparative Case Studies: Estimating the Effect of
+California’s Tobacco Control Program
+
+Kearney, M.S. and Levine, P.B. (2015) Media Influences on Social
+Outcomes: The Impact of MTV's 16 and Pregnant on Teen Childbearing

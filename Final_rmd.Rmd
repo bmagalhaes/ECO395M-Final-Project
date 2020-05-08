@@ -43,9 +43,9 @@ table1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project
 graph1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-graph1.png'
 ```
 
-Assessing policy effects and making predictions based on it has always been a key part of quantitative economics. Empirical economists are very often interested in estimating the impact of certain events or policies on a particular outcome. Wooldridge (2013) describes the effectiveness applications of Differences-in-Differences methodology when the data arise from a natural experiment. This kind of experiment occurs when an exogenous event changes the environment in which individuals opperate, and require observations of both treatment and control group before and after the change.
+Assessing policy effects and making predictions based on it has always been a key part of quantitative economics. Empirical economists are very often interested in estimating the impact of certain events or policies on a particular outcome. Wooldridge (2013) describes the effectiveness applications of Differences-in-Differences methodology when the data arise from a natural experiment. This kind of experiment occurs when an exogenous event changes the environment in which individuals operate, and require observations of both treatment and control group before and after the change.
 
-This methodology is particularly powerfull for infering causality since it neutralizes unobserved, but fixed, omitted variables (Angrist and Pischke, 2018). Nonetheless, it relies on a quite strong – and unfortunately not testable – assumption that the outcome in the multiple individuals/firms/states included in the analysis share the same trend over time, which is called parallel trends assumption.
+This methodology is particularly powerful for inferring causality since it neutralizes unobserved, but fixed, omitted variables (Angrist and Pischke, 2018). Nonetheless, it relies on a quite strong – and unfortunately not testable – assumption that the outcome in the multiple individuals/firms/states included in the analysis share the same trend over time, which is called parallel trends assumption.
 
 The table below illustrates a simple version of the Diff-in-Diff method and why this assumption is required. By decreasing the outcome after treatment from the outcome before treatment for a treated state, the difference (D1) is going to be the effect caused by the treatment (E) plus a trend (T). This step neutralizes unobserved factors of a particular state. For a state that wasn't treated, the difference (D1) before and after treatment is the trend (T) only. So, if we assume that T is the same for both states, we can decrease T, that was measured from the control state, from T + E in order to isolate the causal effect E.
 
@@ -69,7 +69,7 @@ include_graphics(graph1_url)
 
 Cunningham (2020) argues that the nature of this expansion allows us to use it as a natural experiment to estimate the effect of prison expansion on incarceration. He uses the synthetic control method to predict counterfactuals as in Abadie et al. (2010) by searching for the set of weights that generate the best fitting convex combination of the control units, being the best the one that minimizes root mean square error in the pre-treatment period.
 
-His preliminar results indicate that an increase in state prison capacity caused an increase in black male incarceration. We used a set of alternative methods to estimate the causal effect. Bearing this in mind, we used a set of alternative methods learned in class to estimate the these counterfactuals.
+His preliminary results indicate that an increase in state prison capacity caused an increase in black male incarceration. Bearing this in mind, we used a set of alternative methods learned in class to estimate counterfactuals and, therefore, measure the causal effect.
 
 ## Method
 
@@ -77,7 +77,7 @@ In this project, we used a standard Diff-in-Diff model, and compared its results
 
 With some evidence that the Diff-in-Diff assumptions might not hold, a prominent supervised learning modelling method hopefully might predict counterfactuals with more precision and produce more robust and accurate results. Bearing the characteristics of our dataset in mind, we decided to conduct iterative model selection and utilize regularization based methods to identify the best working model.
 
-Our dataset is consisted of state level anual observations of the following variables: number of black male prisoners (bmprison), alcohol consumption per capita (alcohol), aids mortality (aidscapita), average household income (income), unemployment rate (ur), share of the population in poverty (poverty), share of the population which is african american (black) and share of the population which is 15 to 19 years old (perc1519).
+Our dataset is consisted of state level annual observations of the following variables: number of black male prisoners (bmprison), alcohol consumption per capita (alcohol), AIDS mortality (aidscapita), average household income (income), unemployment rate (ur), share of the population in poverty (poverty), share of the population which is African American (black) and share of the population which is 15 to 19 years old (perc1519).
 
 ## RESULTS
 
@@ -197,7 +197,7 @@ reg_lasso = gamlr(texas_x, texas_y)
 plot(reg_lasso, main = "[Graph 2] Lasso Model")
 ```
 
-As a result, we obtained a model with 181 variables with an intercept. Then we did K-fold cross validation to check RMSE when K is 10. We used a train-test split and repeated the step from 1 to K repetitions by running a loop. Our train set and test set were both subsets of our whole dataset except the observations from the state of Texas after 1993, which is what we wan't to predict. By doing it, we can measure how the model estimate the change of black male prisoners which is not affected by the policy implementaion.`
+As a result, we obtained a model with 181 variables with an intercept. Then we did K-fold cross validation to check RMSE when K is 10. We used a train-test split and repeated the step from 1 to K repetitions by running a loop. Our train set and test set were both subsets of our whole dataset except the observations from the state of Texas after 1993, which is what we want to predict. By doing it, we can measure how the model estimate the change of black male prisoners which is not affected by the policy implementation.`
 
 ```{r 4.3.3, echo=FALSE, include=FALSE}
 texas_lasso_beta = coef(reg_lasso)
@@ -316,10 +316,22 @@ subset(texas_general, statefip == 48 | statefip == random_state[1] |
 
 ```
 
-In [Graph 3], we can see two interesting foundings. One is that Texas is showing clearly different movement from our predicted trend after the treatment in 1993. The other is that Our prediction from the lasso model fits very well on real data of controlled states.  
+In [Graph 3], we can see two interesting findings. One is that Texas is showing clearly different movement from our predicted trend after the treatment in 1993. The other is that Our prediction from the lasso model fits very well on real data of controlled states.  
 
 For inference purposes, it is recommended to estimate a confidence interval rather than showing the point estimate only. Therefore, we used a bootstrap to calculate the standard deviation of the parameter's resampling distribution. The results are ADD THE RESULTS AND PLOT
 
-## CONCLUSION
+## Conclusion
 
-The analysis showed that alternative supervised learning methods can play a big role in predicting counterfactuals when there are reasons to believe that the traditional assumptions don't hold. It is important to notice that it is upon to the researcher's discrition how to do it in practice, and it might open up space for "p-hacking" when moving away from the best practices. In that sense, peer review/ validationis is crucial to ensure that the predictions are being yielded by models that minimize out of sample root mean square error, and randomness is fundamental to guarantee that the results aren't being conveniently tampered.
+The analysis showed that alternative supervised learning methods can play a big role in predicting counterfactuals when there are reasons to believe that the traditional assumptions don't hold. It is important to notice that it is upon to the researcher's discretion how to do it in practice, and it might open up space for "p-hacking" when moving away from the best practices. In that sense, peer review/validation is is crucial to ensure that the predictions are being yielded by models that minimize out of sample root mean square error, and randomness is fundamental to guarantee that the results aren't being conveniently tampered.
+
+## References
+
+Wooldridge, J.M. (2013). Introductory econometrics: A modern approach
+
+Angrist, J and Pischke, J.S. (2018). Mostly Harmless Econometrics
+
+Cunningham, Scott (2020). CAUSAL INFERENCE: THE MIXTAPE
+
+Abadie, A, Diamond, A and Hainmueller, J (2010). Synthetic Control Methods for Comparative Case Studies: Estimating the Effect of California’s Tobacco Control Program
+
+Kearney, M.S. and Levine, P.B. (2015) Media Influences on Social Outcomes: The Impact of MTV's 16 and Pregnant on Teen Childbearing
