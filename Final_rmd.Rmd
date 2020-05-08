@@ -35,6 +35,7 @@ library(gbm)
 library(gamlr)
 library(randomForest)
 library(kableExtra)
+library(mosaic)
 
 texas = read.csv("https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/texas.csv")
 
@@ -319,6 +320,157 @@ subset(texas_general, statefip == 48 | statefip == random_state[1] |
 In [Graph 3], we can see two interesting findings. One is that Texas is showing clearly different movement from our predicted trend after the treatment in 1993. The other is that Our prediction from the lasso model fits very well on real data of controlled states.  
 
 For inference purposes, it is recommended to estimate a confidence interval rather than showing the point estimate only. Therefore, we used a bootstrap to calculate the standard deviation of the parameter's resampling distribution. The results are ADD THE RESULTS AND PLOT
+
+```{r 4.3.9, echo=FALSE, cache=TRUE}
+texas_lasso_inf = subset(texas, post == 0)
+lasso_aux = texas_lasso_inf
+texas_lasso_inf = dummy.data.frame(texas_lasso_inf, names = c("statefip", "year_fixed"))
+texas_lasso_inf$statefip = lasso_aux$statefip
+texas_lasso_inf$year_fixed = lasso_aux$year_fixed
+
+texas_x_inf = sparse.model.matrix(bmprison ~ (crack + alcohol + income + ur + poverty + black  + perc1519 + aidscapita + year_fixed + statefip)^2, data=texas_lasso_inf)[, -1]
+texas_y_inf = texas_lasso_inf$bmprison
+reg_lasso_inf = gamlr(texas_x_inf, texas_y_inf)
+
+texas_lasso_beta_inf = coef(reg_lasso_inf)
+sum(texas_lasso_beta_inf!=0)
+p1_inf <- dimnames(texas_lasso_beta_inf)[[1]]
+p1_inf
+p2_inf <- c()
+p2_inf
+for (i in c(1:length(texas_lasso_beta_inf))){
+  p2_inf <- c(p2_inf, as.list(texas_lasso_beta_inf)[[i]])
+}
+model_lasso_inf = c("bmprison ~ ")
+for (i in c(2:length(texas_lasso_beta_inf))){
+  if (p2_inf[i] != 0){
+    if (model_lasso_inf == "bmprison ~ "){
+      model_lasso_inf = paste(model_lasso_inf, p1_inf[i])
+    }
+    else{
+      model_lasso_inf = paste(model_lasso_inf,"+", p1_inf[i])
+    }
+  }
+}
+model_lasso_inf <- as.formula(model_lasso_inf)
+
+texas_pred_inf = c(1:nrow(texas))
+texas_pred_inf = as.data.frame(texas_pred_inf)
+
+for(i in 1:1000) {
+  train_resampling = resample(texas_lasso_inf)
+  boot_train <- lm(model_lasso_inf, data=train_resampling)
+  yhat = predict(boot_train, newdata = texas_general)
+  texas_pred_inf = cbind(texas_pred_inf,yhat)
+}
+
+texas_pred_inf$texas_pred_inf = NULL
+texas_pred_inf$mean = rowMeans(texas_pred_inf, na.rm = FALSE, dims = 1)
+texas_pred_inf$se = apply(texas_pred_inf[,-1001], 1, sd)
+texas_general$yhat_mean_inf = texas_pred_inf$mean
+texas_general$yhat_se_inf = texas_pred_inf$se
+
+plot_texas = subset(texas_general, statefip == 48) %>%
+  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
+  geom_line(aes(y = bmprison)) +
+  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
+  geom_ribbon(alpha = 0.4, fill = "light blue") +
+  ggtitle(texas_general$state[texas_general$statefip == 48]) +
+  theme_bw() +
+  xlab("Year") +
+  ylab("Black Male Incarceration") +
+  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+plot_1 = subset(texas_general, statefip == random_state[1]) %>%
+  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
+  geom_line(aes(y = bmprison)) +
+  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
+  geom_ribbon(alpha = 0.4, fill = "light blue") +
+  ggtitle(texas_general$state[texas_general$statefip == random_state[1]]) +
+  theme_bw() +
+  xlab("Year") +
+  ylab("Black Male Incarceration") +
+  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+plot_2 = subset(texas_general, statefip == random_state[2]) %>%
+  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
+  geom_line(aes(y = bmprison)) +
+  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
+  geom_ribbon(alpha = 0.4, fill = "light blue") +
+  ggtitle(texas_general$state[texas_general$statefip == random_state[2]]) +
+  theme_bw() +
+  xlab("Year") +
+  ylab("Black Male Incarceration") +
+  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+plot_3 = subset(texas_general, statefip == random_state[3]) %>%
+  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
+  geom_line(aes(y = bmprison)) +
+  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
+  geom_ribbon(alpha = 0.4, fill = "light blue") +
+  ggtitle(texas_general$state[texas_general$statefip == random_state[3]]) +
+  theme_bw() +
+  xlab("Year") +
+  ylab("Black Male Incarceration") +
+  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+plot_4 = subset(texas_general, statefip == random_state[4]) %>%
+  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
+  geom_line(aes(y = bmprison)) +
+  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
+  geom_ribbon(alpha = 0.4, fill = "light blue") +
+  ggtitle(texas_general$state[texas_general$statefip == random_state[4]]) +
+  theme_bw() +
+  xlab("Year") +
+  ylab("Black Male Incarceration") +
+  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+plot_5 = subset(texas_general, statefip == random_state[5]) %>%
+  ggplot(aes(x = year, ymin = yhat_mean_inf-1.96*yhat_se_inf, ymax = yhat_mean_inf+1.96*yhat_se_inf)) +
+  geom_line(aes(y = bmprison)) +
+  geom_line(aes(y = yhat_mean_inf), color = "dark blue", linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf+1.96*yhat_se_inf), color = 'light blue',linetype = "dashed") +
+  geom_line(aes(y = yhat_mean_inf-1.96*yhat_se_inf), color = 'light blue',linetype = "dashed")+
+  geom_ribbon(alpha = 0.4, fill = "light blue") +
+  ggtitle(texas_general$state[texas_general$statefip == random_state[5]]) +
+  theme_bw() +
+  xlab("Year") +
+  ylab("Black Male Incarceration") +
+  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+panel_1 = grid.arrange(layout_matrix = cbind(c(1,2,3),c(4,5,6)),
+                       plot_texas, plot_1, plot_2, plot_3,plot_4, plot_5, ncol=3)
+
+panel_1 = grid.arrange(plot_texas, plot_2, ncol=2)
+```
+
+```{r 4.3.10, echo=FALSE}
+texas_post = subset(texas_general, post == 1)
+texas_post$dhat = (texas_post$bmprison - texas_post$yhat_mean_inf)
+mean(texas_post$dhat)
+```
 
 ## Conclusion
 
