@@ -20,7 +20,7 @@ Ji Heon Shim - UTEID js93996
 
 ## Abstract
 
-In this project, we looked into the effect of prison expansion across various prisons in the state of Texas. To assess the causal effect of increased prison capacity on black male population incarceration, we first used the difference-in-difference estimator to see the validity of the parallel trends assumption. Then, in order to overcome the limitations of difference in difference, we explored three alternative predictive analysis models, i.e. Lasso regression, Random Forests, and Boosting model respectively to test their performances via K-fold validation to determine the most accurate model. As a result, our model fits very well on real data suggesting the high possibility of predicting counterfactuals.
+In this project, we looked into the effect of prison expansion across various prisons in the state of Texas. To assess the causal effect of increased prison capacity on black male population incarceration, we first used the Differences-in-Differences estimator and argued about the validity of the parallel trends assumption. Then, in order to overcome potential weaknesses of the Diff-in-Diff model in this research project, we explored three alternative predictive analysis models, i.e. Lasso regression, Random Forests, and Boosting model respectively to test their performances via K-fold validation to determine the most accurate model. As a result, our model fits data quite accurately suggesting the high possibility of predicting counterfactuals.
 
 ## Introduction
 
@@ -310,6 +310,7 @@ texas_general$year_fixed = texas$year_fixed
 model_lasso_test = lm(model_lasso, data=texas_lasso)
 texas_general$yhat = predict(model_lasso_test, newdata = texas_general)
 
+set.seed(123)
 random_state = sample(as.numeric(unique(texas_general$statefip)), size=5)
 
 subset(texas_general, statefip == 48 | statefip == random_state[1] | 
@@ -475,8 +476,6 @@ plot_5 = subset(texas_general, statefip == random_state[5]) %>%
 
 panel_1 = grid.arrange(layout_matrix = cbind(c(1,2,3),c(4,5,6)),
                        plot_texas, plot_1, plot_2, plot_3,plot_4, plot_5, ncol=3)
-
-panel_1 = grid.arrange(plot_texas, plot_2, ncol=2)
 ```
 
 ```{r 4.3.11, echo=FALSE}
