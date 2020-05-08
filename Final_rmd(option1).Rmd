@@ -1,0 +1,311 @@
+---
+title: "Final Project"
+author: "Bernardo Magalhaes, Adhish Luitel, Ji Heon Shim"
+date: "`r format(Sys.Date())`" 
+always_allow_html: true
+output:
+    md_document:
+    variant: markdown_github
+---
+#ECO 395M: Final Project
+
+Bernardo Arreal Magalhaes - UTEID ba25727
+
+Adhish Luitel - UTEID al49674
+
+Ji Heon Shim - UTEID js93996
+
+## Introduction
+
+```{r setup1, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(tidyverse)
+library(haven)
+library(stargazer)
+library(lmtest)
+library(lfe)
+library(xtable)
+library(tidytable)
+library(grid)
+library(car)
+library(dummies)
+library(gbm)
+library(gamlr)
+library(randomForest)
+library(kableExtra)
+
+texas = read.csv("https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/texas.csv")
+table1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-table1.png'
+```
+
+When there are increases in both prisoners and prison capacity, one might naturally deduce that the increase in prisoners contributed to increased prison capacity. However, causality can work conversely at times.
+Here is an interesting study performed by Cunningham(2020). In 1993, Texas state government started a project building more prison to double the state's capacity within 3 years in accordance with the court's decision for prisoners' welfare. He uses the synthetic control method to predict counterfactuals, and his preliminar results indicate that an increase in state prison capacity caused an increase in black male incarceration. 
+We will attempt to deduce if the prison construction policy resulted in the increase in prisoners and find out whether there is a causal relationship between them. But We will use a set of alternative methods to estimate the causal effect. We will be utilizing the methods we learned over the course of the semester with regards to model prediction, and couple it with some powerful econometric tools to assess the degree of causality between these two factors.
+
+### Method
+
+Our dataset is composed of state level annual observations(1985-2000) of the following variables: number of black male prisoners (bmprison), alcohol consumption per capita (alcohol), AIDs mortality (aidscapita), average household income (income), unemployment rate (ur), share of the population in poverty (poverty), share of the population which is african american (black) and share of the population which is 15 to 19 years old (perc1519), and crack consumption(crack).
+In this project, we used a standard Diff-in-Diff model, and compared its results with the simple difference in outcomes predicted by the best predictive model which showed the best performance out of these various methods.
+As the table below illustrates, by decreasing the outcome after treatment from the outcome before treatment for a treated state, the difference (D1) is going to be the effect caused by the treatment (E) plus a trend (T). This step neutralizes unobserved factors of a particular state. For a state that wasn't treated, the difference (D1) before and after treatment is the trend (T) only. So, if we assume that T is the same for both states, we can decrease T, that was measured from the control state, from T + E in order to isolate the causal effect E.
+
+```{r 4.1.2, echo= FALSE, warning = FALSE}
+table1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-table1.png'
+```
+
+This assumption is not testable because we don’t know what would’ve happened to the treatment state had it not been treated.
+But what if we could predict what would have happened to the treated state in this alternative world where it wasn’t treated without having to rely on the parallel trends assumption? In order to do that, we adopted various predictive models such as Lasso Regression, Randomforests, Boosting, and adopted the best predictive model to predict without parallel trends assumption.
+
+
+## RESULTS
+
+### Differences-in-Differences
+
+In order to preserve the same parameters that were included in Cunningham's analysis, the baseline model is:
+
+```{r 4.2.1, echo= TRUE, warning = FALSE}
+bmprison ~ alcohol + aidscapita + income + ur + poverty + black + perc1519 + year + state + year_after1993*state_texas
+```
+
+The model indicates that the expansion of the state prison capacity is associated with an increase of 28,454.82 black male prisoners, holding all else fixed.
+
+```{r 4.2.2, echo=FALSE, warning=FALSE}
+texas$post = ifelse(texas$statefip == 48 & texas$year >= 1993, 1, 0)
+
+texas = texas %>%
+  mutate(year_fixed = as_factor(year)) %>%
+  mutate(statefip = as_factor(statefip))
+
+fe_lm = felm(bmprison ~ post + alcohol + aidscapita + income + ur + poverty + 
+               black + perc1519 | year_fixed + statefip | 0 | 0, data=texas)
+
+stargazer(fe_lm, type = 'text',
+          covariate.labels = "Prison capacity expansion",
+          omit = c("alcohol", "aidscapita", "income", "ur", "poverty",
+                   "black", "perc1519"),
+          dep.var.labels = "Black Male Prisoners",
+            add.lines = list(c("State Fixed effects", "Yes"),
+                           c("Year Fixed effects", "Yes")),
+          omit.stat = "ser")
+```
+
+When decomposing the effect in each year, we get the point estimates shown in the figure below. The coefficients capture how the treatment group differs from the control group when controlling for multiple factors and when considering state and year fixed effects. It also allows us the test the plausibility of parallel trends in the pre-treatment period. As we are including controls and fixed effects, there should be less to be explained by the coefficients to the left of the grey vertical line since the only difference should be the treatment itself, and it didn't occur in years prior to the intervention.
+
+```{r 4.2.3, echo=FALSE, warning=FALSE}
+texas = texas %>%
+  mutate(time_til = ifelse(statefip == 48, year - 1993, 0),
+    lead1 = case_when(time_til == -1 ~ 1, TRUE ~ 0),
+    lead2 = case_when(time_til == -2 ~ 1, TRUE ~ 0),
+    lead3 = case_when(time_til == -3 ~ 1, TRUE ~ 0),
+    lead4 = case_when(time_til == -4 ~ 1, TRUE ~ 0),
+    lead5 = case_when(time_til == -5 ~ 1, TRUE ~ 0),
+    lead6 = case_when(time_til == -6 ~ 1, TRUE ~ 0),
+    lead7 = case_when(time_til == -7 ~ 1, TRUE ~ 0),
+    lead8 = case_when(time_til == -8 ~ 1, TRUE ~ 0),
+    lag0 = case_when(time_til == 0 ~ 1, TRUE ~ 0),
+    lag1 = case_when(time_til == 1 ~ 1, TRUE ~ 0),
+    lag2 = case_when(time_til == 2 ~ 1, TRUE ~ 0),
+    lag3 = case_when(time_til == 3 ~ 1, TRUE ~ 0),
+    lag4 = case_when(time_til == 4 ~ 1, TRUE ~ 0),
+    lag5 = case_when(time_til == 5 ~ 1, TRUE ~ 0),
+    lag6 = case_when(time_til == 6 ~ 1, TRUE ~ 0),
+    lag7 = case_when(time_til == 7 ~ 1, TRUE ~ 0)
+  )
+
+fe_leads = felm(bmprison ~ lead1 + lead2 + lead3 + lead4 + lead5 + lead6 + lead7
+                + lead8 + lag1 + lag2 + lag3 + lag4 + lag5 + lag6 + lag7
+                + alcohol + aidscapita + income + ur + poverty + black + perc1519
+                | year_fixed + statefip | 0 | 0, data=texas)
+
+plot_order <- c("lead8", "lead7", "lead6", "lead5", "lead4", "lead3", "lead2",
+                "lead1", "lag1", "lag2", "lag3", "lag4", "lag5", 
+                "lag6", "lag7")
+
+leadslags_bmprison <- tibble(
+  sd = c(fe_leads$se[plot_order], 0),
+  mean = c(coef(fe_leads)[plot_order], 0),
+  label = c(-8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7, 0)
+)
+
+text_asmrh = "DD Coefficient = 28454.82 (se = 1235.93)"
+
+leadslags_bmprison %>%
+  ggplot(aes(x = label, y = mean, ymin = mean-1.96*sd, ymax = mean+1.96*sd)) +
+  geom_point(color = "dark blue") +
+  geom_line(aes(y = mean+1.96*sd, x=label), colour = 'dark blue', linetype = "dashed") +
+  geom_line(aes(y = mean-1.96*sd, x=label), colour = 'dark blue', linetype = "dashed")+
+  geom_line(color = "dark blue") +
+  geom_ribbon(alpha = 0.4, fill = "light blue") +
+  theme_bw() +
+  xlab("Years Relative to Prison Expansion") +
+  ylab("Black Male Prison") +
+  geom_hline(yintercept = 0, color = "dark grey", size = 0.8) +
+  geom_vline(xintercept = 0, color = "dark grey", size = 0.8) +
+  geom_hline(yintercept = 28454.8160032, color = "red", size = 1.2) +
+  scale_x_continuous(breaks= c(-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7)) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank()) +
+  annotation_custom(grid.text(text_asmrh, x=0.30,  y=0.88,
+                              gp=gpar(col="black", fontsize=8, fontface="bold")))
+```
+
+A test of joint significance of the leads coefficients, as in Kearney and Levine (2015), reject the null hypothesis that they are jointly equal to zero (p-value = 0.006). Therefore, it provides evidence that the parallel trends assumption doesn't hold even in the pre-treatment period, indicating the necessity of exploring different methods.
+
+```{r 4.2.4, echo=FALSE, warning=FALSE}
+f_test = linearHypothesis(fe_leads, c("lead1 = lead2",
+                                                "lead2 = lead3",
+                                                "lead3 = lead4",
+                                                "lead4 = lead5",
+                                                "lead5 = lead6",
+                                                "lead6 = lead7",
+                                                "lead7 = 0"))
+
+stargazer(f_test, flip = TRUE, type = 'text', summary.stat = c("mean"))
+```
+
+### Predictions
+
+We tested 3 models to find out the best predictive one other than assuming the parallel trends. We built Lasso regression, Randomforest, and Boosting model respectively and tested their performances by K-fold validation.  
+
+#### Lasso Regression
+
+First, we fit a lasso regression. From the baseline model we used in diff-in-diff analysis, we added one more variable - 'crack', hoping it can enhance our model's predictive power, and consdiered all the interactions. Running the lasso regression model, the path plot is shown on the diagram below.
+
+```{r 4.3.1, echo=FALSE, warning=FALSE}
+bmprison ~ (crack + alcohol + income + ur + poverty + black 
+                                          + perc1519 + aidscapita + year_fixed + statefip)^2
+```
+
+```{r 4.3.2, echo=FALSE, warning=FALSE}
+texas_train = subset(texas, post == 0)
+texas_lasso <- dummy.data.frame(texas_train, names = c("statefip", "year_fixed"))
+texas_lasso$statefip = texas_train$statefip
+texas_lasso$year_fixed = texas_train$year_fixed
+texas_x = sparse.model.matrix(bmprison ~ (crack + alcohol + income + ur + poverty + black  + perc1519 + aidscapita + year_fixed + statefip)^2, data=texas_lasso)[, -1]
+texas_y = texas_lasso$bmprison
+reg_lasso = gamlr(texas_x, texas_y)
+plot(reg_lasso, main = "[Graph 1] Lasso Model")
+```
+
+As a result, we obtained a model with 181 variables with an intercept. Then we did K-fold cross validation to check RMSE when K is 10. We built a train-test split and repeated the step from 1 to K repetitions by running a loop. Our train set and test set are both subsets of our whole dataset except the data from Texas state after year 1993. We can measure the pure trend of the change of black male prisoners which is not affected by the policy implementaion by excluding the data of treated state after the policy change. When we calculate RMSE for the backward selection model, it turned out to be 408.5
+
+```{r 4.3.3, echo=FALSE, include=FALSE}
+texas_lasso_beta = coef(reg_lasso)
+sum(texas_lasso_beta!=0)
+p1 <- dimnames(texas_lasso_beta)[[1]]
+p1
+p2 <- c()
+p2
+for (i in c(1:length(texas_lasso_beta))){
+  p2 <- c(p2, as.list(texas_lasso_beta)[[i]])
+}
+model_lasso = c("bmprison ~ ")
+for (i in c(2:length(texas_lasso_beta))){
+  if (p2[i] != 0){
+    if (model_lasso == "bmprison ~ "){
+      model_lasso = paste(model_lasso, p1[i])
+    }
+    else{
+      model_lasso = paste(model_lasso,"+", p1[i])
+    }
+  }
+}
+model_lasso <- as.formula(model_lasso)
+model_lasso = lm(model_lasso, data=texas_lasso)
+
+
+N=nrow(texas_train)
+K=10
+fold_id = rep_len(1:K, N)
+fold_id = sample(fold_id, replace = FALSE)
+err_save_lasso = rep(0, K)
+for(i in 1:K){
+  train_set = which(fold_id != i)
+  y_test = texas_lasso$bmprison[-train_set]
+  yhat_test = predict(model_lasso, newdata = texas_lasso[-train_set,])
+  err_save_lasso[i] = mean((y_test-yhat_test)^2)
+}
+
+sqrt(mean(err_save_lasso))
+```
+
+#### Randomforest
+After this, we fit a randomforest model and also did K-fold cross validation with our new baseline model we used in our lasso regression above. We started with 200 trees and as [Graph 2] shows 200 is enough to reduce our errors.
+
+```{r 4.3.4, echo=FALSE, warning=FALSE}
+err_save2 = rep(0, K)
+for(i in 1:K){
+  train_set2 = which(fold_id != i)
+  y_test2 = texas_train$bmprison[-train_set2]
+  model2_train = randomForest(bmprison ~ (crack + alcohol + income + ur + poverty + black 
+                                          + perc1519 + aidscapita + year_fixed + statefip), data=texas_train[train_set2,], ntree=200)
+  yhat_test2 = predict(model2_train, newdata = texas_train[-train_set2,])
+  err_save2[i] = mean((y_test2-yhat_test2)^2)
+}
+plot(model2_train, main="[Graph 2] Number of trees vs error in Randomforest")
+```
+```{r 4.3.5, echo=FALSE, include=FALSE}
+sqrt(mean(err_save2))
+```
+
+The K-fold validation result shows that the RMSE is `r round(sqrt(mean(err_save2)),2)` which is about 4 times larger than the RMSE of lasso regression.
+
+
+#### Boosting
+Lastly, we fit a boosting model with the same baseline model and did K-fold validation as we did above. 
+
+```{r 4.3.6, echo=FALSE, warning=FALSE, include=FALSE}
+err_save3 = rep(0, K)
+for(i in 1:K){
+  train_set3 = which(fold_id != i)
+  y_test3 = texas_train$bmprison[-train_set3]
+  model3_train <- gbm(bmprison ~ (crack + alcohol + income + ur + poverty + black 
+                                  + perc1519 + aidscapita + year_fixed + statefip), data=texas_train[train_set3,], interaction.depth=4, n.trees = 200, shrinkage =.05)
+  yhat_test3 = predict(model3_train, newdata = texas_train[-train_set3,], n.trees =200)
+  err_save3[i] = mean((y_test3-yhat_test3)^2)
+}
+
+sqrt(mean(err_save3))
+```
+
+The result of our K-fold cross validation shows that the RMSE is `r round(sqrt(mean(err_save3)),2)` which is lower than the randomforest model but still higher than the lasso regression.
+[Table 3] shows that the lasso regression has the best predictive power among all the models that we tested. 
+
+```{r 4.3.7, echo=FALSE, warning=FALSE}
+Model <- c('Lasso','Randomforest','Boosting')
+RMSE <- c(round(sqrt(mean(err_save_lasso)),2), round(sqrt(mean(err_save2)),2),round(sqrt(mean(err_save3)),2))
+RMSE_result = data.frame(Model,RMSE)
+RMSE_result = t(RMSE_result)
+kable(RMSE_result, caption = "[Table 3] The RMSE Results") %>% kable_styling("striped")
+```
+
+### Compare our predictions with the real data
+
+Since we have found the best predictive model, now we can compare our predictions with the real data in our whole data set. We can see how our predicion goes along with the real data in [Graph 3]. It shows the change of black male incarceration in the treated state, Texas, with 5 randomly chosen states.
+
+```{r 4.3.8, echo=FALSE, warning=FALSE}
+texas_general <- dummy.data.frame(texas, names = c("statefip", "year_fixed"))
+texas_general$statefip = texas$statefip
+texas_general$year_fixed = texas$year_fixed
+
+model_lasso_test = lm(model_lasso, data=texas_lasso)
+texas_general$yhat = predict(model_lasso_test, newdata = texas_general)
+
+random_state = sample(as.numeric(unique(texas_general$statefip)), size=5)
+
+subset(texas_general, statefip == 48 | statefip == random_state[1] | 
+         statefip == random_state[2] | statefip == random_state[3] |
+         statefip == random_state[4] | statefip == random_state[5]) %>%
+  ggplot(aes(x = year, colour=state)) +
+  geom_line(aes(y = bmprison)) +
+  geom_line(aes(y = yhat), linetype = "dashed") +
+  theme_bw() + ggtitle("[Graph 3] Prediction vs Real data by states") +
+  xlab("Year") +
+  ylab("Black Male Incarceration") +
+  geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
+  theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+
+```
+
+In [Graph 3], we can see two interesting foundings. One is that Texas is showing clearly different movement from our predicted trend after the treatment in 1993. The other is that Our prediction from the lasso model fits very well on real data of controlled states.    
+
+## CONCLUSION
