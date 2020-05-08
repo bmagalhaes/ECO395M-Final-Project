@@ -29,10 +29,7 @@ texas_x = sparse.model.matrix(bmprison ~ (crack + alcohol + income + ur + povert
                                           + perc1519 + aidscapita + year_fixed + statefip)^2, data=texas_lasso)[, -1]
 texas_y = texas_lasso$bmprison
 reg_lasso = gamlr(texas_x, texas_y)
-plot(reg_lasso)
-
-plot(reg_lasso$lambda, AICc(reg_lasso))
-plot(log(reg_lasso$lambda), AICc(reg_lasso))
+plot(reg_lasso, main = "[Graph 1] Lasso Model")
 
 texas_lasso_beta = coef(reg_lasso) 
 texas_lasso_variables = as.data.frame(texas_lasso_beta@Dimnames[[1]])
@@ -99,7 +96,7 @@ subset(texas_general, statefip == 48 | statefip == random_state[1] |
   ggplot(aes(x = year, colour=state)) +
   geom_line(aes(y = bmprison)) +
   geom_line(aes(y = yhat), linetype = "dashed") +
-  theme_bw() +
+  theme_bw() + ggtitle("[Graph 5] Prediction vs Real data by states") +
   xlab("Year") +
   ylab("Black Male Incarceration") +
   geom_vline(xintercept = 1993, color = "dark grey", size = 0.8) +
@@ -172,7 +169,8 @@ Model <- c('Lasso','Randomforest','Boosting')
 RMSE <- c(round(sqrt(mean(err_save_lasso)),2), round(sqrt(mean(err_save2)),2),round(sqrt(mean(err_save3)),2))
 RMSE_result = data.frame(Model,RMSE)
 RMSE_result = t(RMSE_result)
-kable(RMSE_result) %>% kable_styling("striped")
+kable(RMSE_result, caption = "[Table 2] The RMSE Results") %>% kable_styling("striped")
+
 
 
 ##
