@@ -207,7 +207,7 @@ the model estimate the change of black male prisoners which is not
 affected by the policy implementation.\`
 
 When we calculate RMSE for the backward selection model, it turned out
-to be 408.26.
+to be 408.42.
 
 ### RandomForest
 
@@ -218,7 +218,7 @@ reduce our errors.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.4-1.png)
 
-The K-fold validation result shows that the RMSE is 1627.95 which is
+The K-fold validation result shows that the RMSE is 1641.85 which is
 about 4 times larger than the RMSE of lasso regression.
 
 ### Boosting
@@ -226,7 +226,7 @@ about 4 times larger than the RMSE of lasso regression.
 Lastly, we used a boosting model with the same baseline model and did
 K-fold validation as we did above.
 
-The result of our K-fold cross validation shows that the RMSE is 889.83
+The result of our K-fold cross validation shows that the RMSE is 866.89
 which is lower than the RandomForest model but still higher than the
 lasso regression. \[Table 3\] shows that the lasso regression has the
 best predictive power among all the models that we tested.
@@ -238,7 +238,7 @@ best predictive power among all the models that we tested.
     ## +-----------+--------+--------------+----------+
     ## | **Model** | Lasso  | Randomforest | Boosting |
     ## +-----------+--------+--------------+----------+
-    ## | **RMSE**  | 408.26 |   1627.95    |  889.83  |
+    ## | **RMSE**  | 408.42 |   1641.85    |  866.89  |
     ## +-----------+--------+--------------+----------+
 
 ### Comparing the best model’s predictions with the observed data
