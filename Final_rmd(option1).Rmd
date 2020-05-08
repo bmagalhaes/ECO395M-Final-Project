@@ -50,7 +50,7 @@ In this project, we used a standard Diff-in-Diff model, and compared its results
 As the table below illustrates, by decreasing the outcome after treatment from the outcome before treatment for a treated state, the difference (D1) is going to be the effect caused by the treatment (E) plus a trend (T). This step neutralizes unobserved factors of a particular state. For a state that wasn't treated, the difference (D1) before and after treatment is the trend (T) only. So, if we assume that T is the same for both states, we can decrease T, that was measured from the control state, from T + E in order to isolate the causal effect E.
 
 ```{r 4.1.2, echo= FALSE, warning = FALSE}
-table1_url = 'https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-table1.png'
+include_graphics(table1_url)
 ```
 
 This assumption is not testable because we don’t know what would’ve happened to the treatment state had it not been treated.
@@ -168,7 +168,7 @@ We tested 3 models to find out the best predictive one other than assuming the p
 
 #### Lasso Regression
 
-First, we fit a lasso regression. From the baseline model we used in diff-in-diff analysis, we added one more variable - 'crack', hoping it can enhance our model's predictive power, and consdiered all the interactions. Running the lasso regression model, the path plot is shown on the diagram below.
+First, we fit a lasso regression. From the baseline model we used in diff-in-diff analysis, we added one more variable - 'crack', hoping it can enhance our model's predictive power, and consdiered all the interactions. Running the lasso regression model, the path plot is shown on [Graph 2].
 
 ```{r 4.3.1, echo=FALSE, warning=FALSE}
 bmprison ~ (crack + alcohol + income + ur + poverty + black 
@@ -183,7 +183,7 @@ texas_lasso$year_fixed = texas_train$year_fixed
 texas_x = sparse.model.matrix(bmprison ~ (crack + alcohol + income + ur + poverty + black  + perc1519 + aidscapita + year_fixed + statefip)^2, data=texas_lasso)[, -1]
 texas_y = texas_lasso$bmprison
 reg_lasso = gamlr(texas_x, texas_y)
-plot(reg_lasso, main = "[Graph 1] Lasso Model")
+plot(reg_lasso, main = "[Graph 2] Lasso Model")
 ```
 
 As a result, we obtained a model with 181 variables with an intercept. Then we did K-fold cross validation to check RMSE when K is 10. We built a train-test split and repeated the step from 1 to K repetitions by running a loop. Our train set and test set are both subsets of our whole dataset except the data from Texas state after year 1993. We can measure the pure trend of the change of black male prisoners which is not affected by the policy implementaion by excluding the data of treated state after the policy change. When we calculate RMSE for the backward selection model, it turned out to be 408.5
@@ -229,7 +229,7 @@ sqrt(mean(err_save_lasso))
 ```
 
 #### Randomforest
-After this, we fit a randomforest model and also did K-fold cross validation with our new baseline model we used in our lasso regression above. We started with 200 trees and as [Graph 2] shows 200 is enough to reduce our errors.
+After this, we fit a randomforest model and also did K-fold cross validation with our new baseline model we used in our lasso regression above. We started with 200 trees and as [Graph 3] shows 200 is enough to reduce our errors.
 
 ```{r 4.3.4, echo=FALSE, warning=FALSE}
 err_save2 = rep(0, K)
@@ -241,7 +241,7 @@ for(i in 1:K){
   yhat_test2 = predict(model2_train, newdata = texas_train[-train_set2,])
   err_save2[i] = mean((y_test2-yhat_test2)^2)
 }
-plot(model2_train, main="[Graph 2] Number of trees vs error in Randomforest")
+plot(model2_train, main="[Graph 3] Number of trees vs error in Randomforest")
 ```
 ```{r 4.3.5, echo=FALSE, include=FALSE}
 sqrt(mean(err_save2))

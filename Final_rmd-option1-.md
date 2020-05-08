@@ -47,6 +47,8 @@ treatment is the trend (T) only. So, if we assume that T is the same for
 both states, we can decrease T, that was measured from the control
 state, from T + E in order to isolate the causal effect E.
 
+![](https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-table1.png)
+
 This assumption is not testable because we don’t know what would’ve
 happened to the treatment state had it not been treated. But what if we
 could predict what would have happened to the treated state in this
@@ -129,7 +131,7 @@ First, we fit a lasso regression. From the baseline model we used in
 diff-in-diff analysis, we added one more variable - ‘crack’, hoping it
 can enhance our model’s predictive power, and consdiered all the
 interactions. Running the lasso regression model, the path plot is shown
-on the diagram below.
+on \[Graph 2\].
 
     ## bmprison ~ (crack + alcohol + income + ur + poverty + black + 
     ##     perc1519 + aidscapita + year_fixed + statefip)^2
@@ -150,12 +152,12 @@ selection model, it turned out to be 408.5
 
 After this, we fit a randomforest model and also did K-fold cross
 validation with our new baseline model we used in our lasso regression
-above. We started with 200 trees and as \[Graph 2\] shows 200 is enough
+above. We started with 200 trees and as \[Graph 3\] shows 200 is enough
 to reduce our errors.
 
 ![](Final_rmd-option1-_files/figure-markdown_strict/4.3.4-1.png)
 
-The K-fold validation result shows that the RMSE is 1656.5 which is
+The K-fold validation result shows that the RMSE is 1645.31 which is
 about 4 times larger than the RMSE of lasso regression.
 
 #### Boosting
@@ -163,7 +165,7 @@ about 4 times larger than the RMSE of lasso regression.
 Lastly, we fit a boosting model with the same baseline model and did
 K-fold validation as we did above.
 
-The result of our K-fold cross validation shows that the RMSE is 857.35
+The result of our K-fold cross validation shows that the RMSE is 815.29
 which is lower than the randomforest model but still higher than the
 lasso regression. \[Table 3\] shows that the lasso regression has the
 best predictive power among all the models that we tested.
@@ -192,13 +194,13 @@ Boosting
 RMSE
 </td>
 <td style="text-align:left;">
-408.48
+408.60
 </td>
 <td style="text-align:left;">
-1656.50
+1645.31
 </td>
 <td style="text-align:left;">
-857.35
+815.29
 </td>
 </tr>
 </tbody>
