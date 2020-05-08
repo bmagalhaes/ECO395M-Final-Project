@@ -206,7 +206,7 @@ the model estimate the change of black male prisoners which is not
 affected by the policy implementation.\`
 
 When we calculate RMSE for the backward selection model, it turned out
-to be 408.39.
+to be 408.34.
 
 ### RandomForest
 
@@ -217,7 +217,7 @@ to reduce our errors.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.4-1.png)
 
-The K-fold validation result shows that the RMSE is 1696.59 which is
+The K-fold validation result shows that the RMSE is 1671.4 which is
 about 4 times larger than the RMSE of lasso regression.
 
 ### Boosting
@@ -225,46 +225,19 @@ about 4 times larger than the RMSE of lasso regression.
 Lastly, we used a boosting model with the same baseline model and did
 K-fold validation as we did above.
 
-The result of our K-fold cross validation shows that the RMSE is 867.87
+The result of our K-fold cross validation shows that the RMSE is 823.23
 which is lower than the RandomForest model but still higher than the
 lasso regression. \[Table 3\] shows that the lasso regression has the
 best predictive power among all the models that we tested.
 
-<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
-<caption>
-\[Table 3\] The RMSE Results
-</caption>
-<tbody>
-<tr>
-<td style="text-align:left;">
-Model
-</td>
-<td style="text-align:left;">
-Lasso
-</td>
-<td style="text-align:left;">
-Randomforest
-</td>
-<td style="text-align:left;">
-Boosting
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-RMSE
-</td>
-<td style="text-align:left;">
-408.39
-</td>
-<td style="text-align:left;">
-1696.59
-</td>
-<td style="text-align:left;">
-867.87
-</td>
-</tr>
-</tbody>
-</table>
+    ## 
+    ## ----------- -------- -------------- ----------
+    ##  **Model**   Lasso    Randomforest   Boosting 
+    ## 
+    ##  **RMSE**    408.34     1671.40       823.23  
+    ## ----------- -------- -------------- ----------
+    ## 
+    ## Table: Table 2: RMSE Results for each model
 
 ### Comparing the best model’s predictions with the observed data
 
@@ -302,11 +275,12 @@ from the best practices. In that sense, peer review/validation is
 crucial to ensure that the predictions are being yielded by models that
 minimize out of sample root mean square error, and randomness is
 fundamental to guarantee that the results aren’t being conveniently
-tampered. Our dataset has only 816 observations due to the limitation of
-number of states and time span. We could have increased our model’s
-predictive power if we had had more observations, however, our model
-fits very well on real data of contolled states suggesting the
-possibility of predicting counterfactuals.
+tampered.  
+Our dataset has only 816 observations due to the limitation of number of
+states and time span. We could have increased our model’s predictive
+power if we had had more observations, however, our model fits very well
+on real data of contolled states suggesting the possibility of
+predicting counterfactuals.
 
 References
 ----------

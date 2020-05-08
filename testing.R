@@ -174,9 +174,9 @@ Model <- c('Lasso','Randomforest','Boosting')
 RMSE <- c(round(sqrt(mean(err_save_lasso)),2), round(sqrt(mean(err_save2)),2),round(sqrt(mean(err_save3)),2))
 RMSE_result = data.frame(Model,RMSE)
 RMSE_result = t(RMSE_result)
-pandoc.table(RMSE_result, '[Table3] RMSE Results of three models')
-
-
+[Table 2] RMSE results of each model
+pandoc.table(RMSE_result)
+?pandoc.table
 ##
 
 texas_pred = c(1:nrow(texas))
