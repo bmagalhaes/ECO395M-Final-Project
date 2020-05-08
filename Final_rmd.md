@@ -16,14 +16,14 @@ Abstract
 In this project, we looked into the effect of prison expansion across
 various prisons in the state of Texas. To assess the causal effect of
 increased prison capacity on black male population incarceration, we
-first used the difference-in-difference estimator to see the validity of
-the parallel trends assumption. Then, in order to overcome the
-limitations of difference in difference, we explored three alternative
-predictive analysis models, i.e. Lasso regression, Random Forests, and
-Boosting model respectively to test their performances via K-fold
-validation to determine the most accurate model. As a result, our model
-fits very well on real data suggesting the high possibility of
-predicting counterfactuals.
+first used the Differences-in-Differences estimator and argued about the
+validity of the parallel trends assumption. Then, in order to overcome
+potential weaknesses of the Diff-in-Diff model in this research project,
+we explored three alternative predictive analysis models, i.e. Lasso
+regression, Random Forests, and Boosting model respectively to test
+their performances via K-fold validation to determine the most accurate
+model. As a result, our model fits data quite accurately suggesting the
+high possibility of predicting counterfactuals.
 
 Introduction
 ------------
@@ -50,7 +50,7 @@ and why this assumption is required. By decreasing the outcome after
 treatment from the outcome before treatment for a treated state, the
 difference (D1) is going to be the effect caused by the treatment (E)
 plus a trend (T). This step neutralizes unobserved factors of a
-particular state. For a state that wasn’t treated, the difference (D1)
+particular state. For a state that wasn't treated, the difference (D1)
 before and after treatment is the trend (T) only. So, if we assume that
 T is the same for both states, we can decrease T, that was measured from
 the control state, from T + E in order to isolate the causal effect E.
@@ -86,7 +86,7 @@ ended up doubling the state’s capacity within 3 years.
 Cunningham (2020) argues that the nature of this expansion allows us to
 use it as a natural experiment to estimate the effect of prison
 expansion on incarceration. He uses the synthetic control method to
-predict counterfactuals as in Abadie et al. (2010) by searching for the
+predict counterfactuals as in Abadie et al. (2010) by searching for the
 set of weights that generate the best fitting convex combination of the
 control units, being the best the one that minimizes root mean square
 error in the pre-treatment period.
@@ -132,7 +132,7 @@ RESULTS
 ### Differences-in-Differences
 
 In order to have a baseline model which preserve the same parameters
-that were included in Cunningham’s analysis, the Diff-in-Diff model is:
+that were included in Cunningham's analysis, the Diff-in-Diff model is:
 
     # bmprison ~ alcohol + aidscapita + income + ur + poverty + black + perc1519 + year + state + year_after1993*state_texas
 
@@ -166,7 +166,7 @@ when considering state and year fixed effects. It also allows us the
 test the plausibility of parallel trends in the pre-treatment period. As
 we are including controls and fixed effects, there should be less to be
 explained by the coefficients to the left of the grey vertical line
-since the only difference should be the treatment itself, and it didn’t
+since the only difference should be the treatment itself, and it didn't
 occur in years prior to the intervention.
 
 ![](Final_rmd_files/figure-markdown_strict/4.2.3-1.png)
@@ -174,7 +174,7 @@ occur in years prior to the intervention.
 A test of joint significance of the leads coefficients, as in Kearney
 and Levine (2015), reject the null hypothesis that they are jointly
 equal to zero (p-value = 0.006). Therefore, it provides evidence that
-the parallel trends assumption doesn’t hold even in the pre-treatment
+the parallel trends assumption doesn't hold even in the pre-treatment
 period, indicating the necessity of exploring different methods.
 
     ## 
@@ -193,8 +193,8 @@ respectively and tested their performances by K-fold validation.
 ### Lasso Regression
 
 First, we fit a lasso regression. From the baseline model we used in
-diff-in-diff analysis, we added one more variable - ‘crack’, hoping it
-can enhance our model’s predictive power, and considered all possible
+diff-in-diff analysis, we added one more variable - 'crack', hoping it
+can enhance our model's predictive power, and considered all possible
 interactions.
 
 As a result, we obtained a model with 181 variables with an intercept.
@@ -207,7 +207,7 @@ the model estimate the change of black male prisoners which is not
 affected by the policy implementation.\`
 
 When we calculate RMSE for the backward selection model, it turned out
-to be 408.35.
+to be 408.36.
 
 ### RandomForest
 
@@ -218,7 +218,7 @@ reduce our errors.
 
 ![](Final_rmd_files/figure-markdown_strict/4.3.4-1.png)
 
-The K-fold validation result shows that the RMSE is 1780.29 which is
+The K-fold validation result shows that the RMSE is 1693.5 which is
 about 4 times larger than the RMSE of lasso regression.
 
 ### Boosting
@@ -226,7 +226,7 @@ about 4 times larger than the RMSE of lasso regression.
 Lastly, we used a boosting model with the same baseline model and did
 K-fold validation as we did above.
 
-The result of our K-fold cross validation shows that the RMSE is 879.39
+The result of our K-fold cross validation shows that the RMSE is 834.31
 which is lower than the RandomForest model but still higher than the
 lasso regression. \[Table 3\] shows that the lasso regression has the
 best predictive power among all the models that we tested.
@@ -238,10 +238,10 @@ best predictive power among all the models that we tested.
     ## +-----------+--------+--------------+----------+
     ## | **Model** | Lasso  | Randomforest | Boosting |
     ## +-----------+--------+--------------+----------+
-    ## | **RMSE**  | 408.35 |   1780.29    |  879.39  |
+    ## | **RMSE**  | 408.36 |   1693.50    |  834.31  |
     ## +-----------+--------+--------------+----------+
 
-### Comparing the best model’s predictions with the observed data
+### Comparing the best model's predictions with the observed data
 
 Since we have assessed our best predictive model, now we can compare its
 predictions with the real data in our whole data set. We can see how our
@@ -258,31 +258,40 @@ fits very well on real data of controlled states.
 
 For inference purposes, it is recommended to estimate a confidence
 interval rather than showing the point estimate only. Therefore, we used
-a bootstrap to calculate the standard deviation of the parameter’s
-resampling distribution. The results are ADD THE RESULTS AND PLOT
+a bootstrap to calculate the standard deviation of the parameter's
+resampling distribution, and illustrated the results on figure 4.
 
-![](Final_rmd_files/figure-markdown_strict/4.3.10-1.png)![](Final_rmd_files/figure-markdown_strict/4.3.10-2.png)
+![](Final_rmd_files/figure-markdown_strict/4.3.10-1.png)
+
+The average treatment effect calculated by taking the average of the
+simple difference of outcomes between the observed data and the
+predictions yielded by our most accurate model was:
 
     ## [1] 25254.73
+
+When comparing it to the Diff-in-Diff estimator, we can observe a
+decrease of approximately 12% on the magnitude of the effect.
 
 Conclusion
 ----------
 
 The analysis showed that alternative supervised learning methods can
-play a big role in predicting counterfactuals when there are reasons to
-believe that the traditional assumptions don’t hold. It is important to
-notice that it is upon to the researcher’s discretion how to do it in
-practice, and it might open up space for “p-hacking” when moving away
-from the best practices. In that sense, peer review/validation is
-crucial to ensure that the predictions are being yielded by models that
-minimize out of sample root mean square error, and randomness is
-fundamental to guarantee that the results aren’t being conveniently
-tampered.  
-Our dataset has only 816 observations due to the limitation of number of
-states and time span. We could have increased our model’s predictive
-power if we had had more observations, however, our model fits very well
-on real data of contolled states suggesting the possibility of
-predicting counterfactuals.
+play a big role in predicting counterfactuals either when there are
+reasons to believe that the traditional assumptions don't hold, or to
+corroborate the assumptions as well. It is important to notice that it
+is upon to the researcher's discretion how to do it in practice, and it
+might open up space for "p-hacking" when moving away from the best
+practices. In that sense, peer review/validation is crucial to ensure
+that the predictions are being yielded by models that minimize out of
+sample root mean square error, and randomness is fundamental to
+guarantee that the results aren't being conveniently tampered.
+
+Given that our dataset was consisted of only 816 observations and a
+limitted amount of covariates, our best judgement is that the
+alternative model yielded satisfactory results. We could have increased
+our model's predictive power if we had had more observations, however,
+our model fits very well on real data of contolled states suggesting the
+possibility of predicting counterfactuals.
 
 References
 ----------
@@ -298,4 +307,4 @@ Methods for Comparative Case Studies: Estimating the Effect of
 California’s Tobacco Control Program
 
 Kearney, M.S. and Levine, P.B. (2015) Media Influences on Social
-Outcomes: The Impact of MTV’s 16 and Pregnant on Teen Childbearing
+Outcomes: The Impact of MTV's 16 and Pregnant on Teen Childbearing
