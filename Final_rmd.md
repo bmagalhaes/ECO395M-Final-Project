@@ -1,6 +1,9 @@
 ECO 395M: Final Project
 =======================
 
+Using Machine Learning literature to predict counterfactuals: an alternative method to Differences-in-Differences estimation
+----------------------------------------------------------------------------------------------------------------------------
+
 Bernardo Arreal Magalhaes - UTEID ba25727
 
 Adhish Luitel - UTEID al49674
@@ -40,17 +43,17 @@ the control state, from T + E in order to isolate the causal effect E.
 ![](https://raw.githubusercontent.com/bmagalhaes/ECO395M-Final-Project/master/4.0-table1.png)
 
 This assumption is not testable because we don’t know what would’ve
-happened to the treatment state had it not been treated.
+happened to the treatment state had it never been treated.
 
 But what if we could predict what would have happened to the treated
 state in this alternative world where it wasn’t treated without having
 to rely on the parallel trends assumption?
 
-INTRODUCTION TO PREDICTIVE MODELS
-
-In this particular study, we compared the application of different
-suppervised learning predictive methods with the Diff-in-Diff estimator
-of the following research project.
+In order to do that, we analyzed the application of a set of predictive
+models such as Lasso Regression, RandomForest and Boosting in a
+particular research topic, and adopted the best predictive model to
+predict counterfactuals without having to rely on the parallel trends
+assumption.
 
 ### Research topic brief summary
 
@@ -75,14 +78,24 @@ error in the pre-treatment period.
 
 His preliminar results indicate that an increase in state prison
 capacity caused an increase in black male incarceration. We used a set
-of alternative methods to estimate the causal effect.
+of alternative methods to estimate the causal effect. Bearing this in
+mind, we used a set of alternative methods learned in class to estimate
+the these counterfactuals.
 
 Method
 ------
 
 In this project, we used a standard Diff-in-Diff model, and compared its
-results with the simple difference in outcomes predicted by MENTION THE
-PREDICTIVE MODELS.
+results with the simple difference in outcomes predicted by the
+alternative method that yields the best out of sample predictive power
+among multiple train-test splits.
+
+With some evidence that the Diff-in-Diff assumptions might not hold, a
+prominent supervised learning modelling method hopefully might predict
+counterfactuals with more precision and produce more robust and accurate
+results. Bearing the characteristics of our dataset in mind, we decided
+to conduct iterative model selection and utilize regularization based
+methods to identify the best working model.
 
 Our dataset is consisted of state level anual observations of the
 following variables: number of black male prisoners (bmprison), alcohol
@@ -97,13 +110,10 @@ RESULTS
 
 ### Differences-in-Differences
 
-In order to preserve the same parameters that were included in
-Cunningham's analysis, the baseline model is:
+In order to have a baseline model which preserve the same parameters
+that were included in Cunningham's analysis, the Diff-in-Diff model is:
 
-    bmprison ~ alcohol + aidscapita + income + ur + poverty + black + perc1519 + year + state + year_after1993*state_texas
-
-    ## bmprison ~ alcohol + aidscapita + income + ur + poverty + black + 
-    ##     perc1519 + year + state + year_after1993 * state_texas
+    # bmprison ~ alcohol + aidscapita + income + ur + poverty + black + perc1519 + year + state + year_after1993*state_texas
 
 The model indicates that the expansion of the state prison capacity is
 associated with an increase of 28,454.82 black male prisoners, holding
@@ -137,7 +147,7 @@ there should be less to be explained by the coefficients to the left of
 the grey vertical line since the only difference should be the treatment
 itself, and it didn't occur in years prior to the intervention.
 
-![](Final_rmd_files/figure-markdown_strict/4.2.3-1.png)![](Final_rmd_files/figure-markdown_strict/4.2.3-2.png)
+![](Final_rmd_files/figure-markdown_strict/4.2.3-1.png)
 
 A test of joint significance of the leads coefficients, as in Kearney
 and Levine (2015), reject the null hypothesis that they are jointly
@@ -152,11 +162,120 @@ period, indicating the necessity of exploring different methods.
     ## Mean      731.500 7.000 19.959    0.006   
     ## ------------------------------------------
 
-### LASSO
+Therefore, we tested 3 alternative models to find out the best
+predictive one other than assuming the parallel trends. As mentioned
+before, we used Lasso regression, RandomForest, and Boosting model
+respectively and tested their performances by K-fold validation.
 
-### STEPWISE SELECTION
+### Lasso Regression
 
-### RANDOM FOREST?
+First, we fit a lasso regression. From the baseline model we used in
+diff-in-diff analysis, we added one more variable - 'crack', hoping it
+can enhance our model's predictive power, and considered all possible
+interactions. Running the lasso regression model, the path plot is shown
+on \[Graph 2\].
+
+![](Final_rmd_files/figure-markdown_strict/4.3.2-1.png)
+
+As a result, we obtained a model with 181 variables with an intercept.
+Then we did K-fold cross validation to check RMSE when K is 10. We used
+a train-test split and repeated the step from 1 to K repetitions by
+running a loop. Our train set and test set were both subsets of our
+whole dataset except the observations from the state of Texas after
+1993, which is what we wan't to predict. By doing it, we can measure how
+the model estimate the change of black male prisoners which is not
+affected by the policy implementaion.\`
+
+When we calculate RMSE for the backward selection model, it turned out
+to be 408.57.
+
+### RandomForest
+
+After this, we fit a RandomForest model and also did K-fold cross
+validation with the same baseline model we used in our lasso regression
+above. We started with 200 trees and as \[Graph 3\] shows 200 is enough
+to reduce our errors.
+
+![](Final_rmd_files/figure-markdown_strict/4.3.4-1.png)
+
+The K-fold validation result shows that the RMSE is 1652.09 which is
+about 4 times larger than the RMSE of lasso regression.
+
+### Boosting
+
+Lastly, we used a boosting model with the same baseline model and did
+K-fold validation as we did above.
+
+The result of our K-fold cross validation shows that the RMSE is 833.32
+which is lower than the RandomForest model but still higher than the
+lasso regression. \[Table 3\] shows that the lasso regression has the
+best predictive power among all the models that we tested.
+
+<table class="table table-striped" style="margin-left: auto; margin-right: auto;">
+<caption>
+\[Table 3\] The RMSE Results
+</caption>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Model
+</td>
+<td style="text-align:left;">
+Lasso
+</td>
+<td style="text-align:left;">
+Randomforest
+</td>
+<td style="text-align:left;">
+Boosting
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+RMSE
+</td>
+<td style="text-align:left;">
+408.57
+</td>
+<td style="text-align:left;">
+1652.09
+</td>
+<td style="text-align:left;">
+833.32
+</td>
+</tr>
+</tbody>
+</table>
+### Comparing the best model's predictions with the observed data
+
+Since we have assessed our best predictive model, now we can compare its
+predictions with the real data in our whole data set. We can see how our
+prediction goes along with the real data in \[Graph 3\]. It shows the
+change of black male incarceration in the treated state, Texas, with 5
+randomly chosen states.
+
+![](Final_rmd_files/figure-markdown_strict/4.3.8-1.png)
+
+In \[Graph 3\], we can see two interesting foundings. One is that Texas
+is showing clearly different movement from our predicted trend after the
+treatment in 1993. The other is that Our prediction from the lasso model
+fits very well on real data of controlled states.
+
+For inference purposes, it is recommended to estimate a confidence
+interval rather than showing the point estimate only. Therefore, we used
+a bootstrap to calculate the standard deviation of the parameter's
+resampling distribution. The results are ADD THE RESULTS AND PLOT
 
 CONCLUSION
 ----------
+
+The analysis showed that alternative supervised learning methods can
+play a big role in predicting counterfactuals when there are reasons to
+believe that the traditional assumptions don't hold. It is important to
+notice that it is upon to the researcher's discrition how to do it in
+practice, and it might open up space for "p-hacking" when moving away
+from the best practices. In that sense, peer review/ validationis is
+crucial to ensure that the predictions are being yielded by models that
+minimize out of sample root mean square error, and randomness is
+fundamental to guarantee that the results aren't being conveniently
+tampered.
